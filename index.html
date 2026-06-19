@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nicolas Grignon Photo Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        /* [CHANGE 2] Gallery uses natural height so snap-proximity lets users scroll through all photos */
+        .section-snap { scroll-snap-align: start; min-height: 100vh; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .fade-in { transition: opacity 1s ease-in-out; }
+
+        /* [CHANGE 3] Lightbox overlay */
+        #lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        #lightbox.active { display: flex; }
+        #lightbox-img {
+            max-width: 80vw;
+            max-height: 80vh;
+            object-fit: contain;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+        }
+        #lightbox-close {
+            position: absolute;
+            top: 1.25rem;
+            right: 2rem;
+            color: white;
+            font-size: 1.75rem;
+            line-height: 1;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            z-index: 10000;
+        }
+        #lightbox-close:hover { color: #a8a29e; }
+
+        /* Gallery cursor hint */
+        #gallery-grid img { cursor: pointer; }
+    </style>
+</head>
+<body class="bg-white text-stone-800 antialiased overflow-x-hidden">
+
+    <!-- [CHANGE 3] Lightbox Overlay -->
+    <div id="lightbox" aria-modal="true" role="dialog">
+        <button id="lightbox-close" aria-label="Close image">&#10005;</button>
+        <img id="lightbox-img" src="" alt="Gallery image enlarged">
+    </div>
+
+    <!-- Navigation | [CHANGE 1] Background changed to light gray -->
+    <nav class="fixed top-0 left-0 w-full h-[50px] px-8 z-50 flex justify-between items-center text-stone-800 bg-stone-200/95 backdrop-blur-sm border-b border-stone-300">
+        <a href="#home" class="flex items-center gap-2 leading-none">
+            <span class="text-xl font-bold text-stone-900 tracking-tight">NG</span>
+            <span class="text-xs tracking-[0.2em] uppercase font-light text-stone-800">Photography</span>
+        </a>
+        <div class="space-x-8 text-xs uppercase tracking-widest font-light">
+            <a href="#home" class="hover:text-stone-400 transition">Home</a>
+            <a href="#about" class="hover:text-stone-400 transition">About</a>
+            <a href="#gallery" class="hover:text-stone-400 transition">Gallery</a>
+            <a href="#contact" class="hover:text-stone-400 transition">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Main Container | [CHANGE 2] snap-mandatory → snap-proximity so gallery can scroll freely -->
+    <main id="main-scroll" class="h-screen overflow-y-scroll snap-y snap-proximity hide-scrollbar">
+
+        <!-- Home Section -->
+        <section id="home" class="section-snap pt-[50px] pb-12 flex flex-col items-center justify-center bg-white">
+            <div class="relative w-full h-[460px] bg-stone-100 shadow-inner overflow-hidden">
+                <div id="hero-slider" class="w-full h-full absolute inset-0">
+                    <!-- Images injected via JS -->
+                </div>
+            </div>
+
+            <div class="mt-12 text-center text-stone-800">
+                <h2 class="text-4xl font-extralight mb-2">Nicolas Grignon Photo Studio</h2>
+                <p class="text-xs tracking-[0.3em] uppercase">Photography in light, silence, and emotion</p>
+                <div id="slider-dots" class="mt-6 flex justify-center gap-2"></div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section-snap flex flex-col md:flex-row items-center justify-center p-12 md:p-24 max-w-7xl mx-auto gap-12">
+            <div class="flex-1 w-full h-[60vh] bg-stone-200 shadow-inner">
+                <img src="images/Nicolas.jpeg" alt="Nicolas Grignon" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1">
+                <h3 class="text-xs uppercase tracking-widest mb-6 border-b border-stone-300 pb-2 inline-block">About the artist</h3>
+                <p class="text-lg font-light leading-relaxed mb-8 text-stone-600">Capturing the ephemeral beauty of existence through a lens, I show you the true essence of life on Earth through Wildlife, Street, landscape, Portrait, Activism, Technology and Black and white photography</p>
+                <!-- [CHANGE 4] Flickr button linked — replace YOUR_FLICKR_URL with your actual Flickr profile URL -->
+                <a href="https://www.flickr.com/photos/nicolas_grignon/albums/72157654278346578/" target="_blank" rel="noopener noreferrer"
+                   class="border border-stone-800 px-8 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition inline-block">
+                    Visit Flickr
+                </a>
+            </div>
+        </section>
+
+        <!-- Gallery Section | [CHANGE 2] No section-snap so it grows to natural height and is fully scrollable -->
+        <section id="gallery" class="scroll-snap-align-start py-16 px-12 md:px-24 max-w-7xl mx-auto" style="scroll-snap-align: start;">
+            <h3 class="text-center text-xs uppercase tracking-widest mb-12">Selected Works</h3>
+            <div id="gallery-grid" class="columns-1 md:columns-3 gap-4 space-y-4">
+                <!-- Images injected via JS — click any thumbnail to open lightbox [CHANGE 3] -->
+            </div>
+            <div class="h-16"></div><!-- bottom breathing room -->
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section-snap flex flex-col items-center justify-center p-12 text-center">
+            <h3 class="text-xs uppercase tracking-widest mb-12">Get in touch</h3>
+            <div class="w-full max-w-md space-y-6">
+                <p class="text-2xl font-light italic text-stone-500">+1 (555) 012-3456</p>
+
+                <!-- [CHANGE 5] Email is now a mailto button -->
+                <a href="mailto:hello@nicolasgrignon.com"
+                   class="inline-block border border-stone-800 px-8 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition">
+                    hello@nicolasgrignon.com
+                </a>
+
+                <form class="flex flex-col gap-4 mt-8">
+                    <input type="text" placeholder="Name"
+                           class="border-b border-stone-300 py-2 focus:outline-none focus:border-stone-800 bg-transparent">
+                    <input type="email" placeholder="Email"
+                           class="border-b border-stone-300 py-2 focus:outline-none focus:border-stone-800 bg-transparent">
+                    <select class="border-b border-stone-300 py-2 text-stone-400 bg-transparent">
+                        <option>Project Type</option>
+                        <option>Editorial</option>
+                        <option>Commercial</option>
+                        <option>Portrait</option>
+                    </select>
+                    <textarea placeholder="Message"
+                              class="border-b border-stone-300 py-2 focus:outline-none focus:border-stone-800 bg-transparent"></textarea>
+                    <button type="submit"
+                            class="bg-stone-800 text-white py-3 uppercase tracking-widest text-xs mt-4 hover:bg-stone-600 transition">
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        /**
+         * NOTE FOR DEVELOPER:
+         * Replace 'YOUR_FLICKR_URL' in the About section anchor tag with your actual
+         * Flickr profile username/ID. Example: https://www.flickr.com/people/nicolas_grignon/
+         */
+        const portfolioData = {
+            heroImages: [
+                "images/Toronto.jpg",
+                "images/oldman.jpg",
+                "images/Kawartha.jpg",
+                "images/Lake.jpg"
+            ],
+            galleryImages: [
+                "images/F22.jpg",
+                "images/Beth.jpg",
+                "images/NotShy.jpg",
+                "images/BlueAngel.jpg",
+                "images/Cox.jpg",
+                "images/Lambo.jpg",
+                "images/ParisTexas.jpg",
+                "images/Mustang.jpg",
+                "images/Squirrel.jpg",
+				"images/Toronto.jpg",
+                "images/Corvette.jpg",
+                "images/oldman.jpg",
+                "images/Eagle.jpg",
+                "images/Jazz.jpg",
+                "images/Billy.jpg",
+                "images/Kawartha.jpg",
+                "images/Mustang.jpg",
+                "images/Squirrel.jpg",
+                "images/Volcan.jpg"
+            ]
+        };
+
+        /* ── Hero Slider ── */
+        const slider = document.getElementById('hero-slider');
+        const dotsContainer = document.getElementById('slider-dots');
+        let currentIndex = 0;
+
+        portfolioData.heroImages.forEach((img, i) => {
+            const div = document.createElement('div');
+            div.className = `absolute inset-0 bg-cover bg-center fade-in ${i === 0 ? 'opacity-100' : 'opacity-0'}`;
+            div.style.backgroundImage = `url('${img}')`;
+            slider.appendChild(div);
+
+            const dot = document.createElement('button');
+            dot.className = `w-2 h-2 rounded-full transition-all ${i === 0 ? 'bg-stone-800' : 'bg-stone-400'}`;
+            dotsContainer.appendChild(dot);
+        });
+
+        setInterval(() => {
+            const slides = slider.children;
+            const dots = dotsContainer.children;
+            if (slides.length === 0) return;
+
+            slides[currentIndex].classList.replace('opacity-100', 'opacity-0');
+            dots[currentIndex].classList.replace('bg-stone-800', 'bg-stone-400');
+
+            currentIndex = (currentIndex + 1) % slides.length;
+
+            slides[currentIndex].classList.replace('opacity-0', 'opacity-100');
+            dots[currentIndex].classList.replace('bg-stone-400', 'bg-stone-800');
+        }, 5000);
+
+        /* ── Gallery Grid + Lightbox ── */
+        const grid        = document.getElementById('gallery-grid');
+        const lightbox    = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const closeBtn    = document.getElementById('lightbox-close');
+
+        portfolioData.galleryImages.forEach(img => {
+            const div = document.createElement('div');
+            div.className = 'break-inside-avoid overflow-hidden';
+            div.innerHTML = `<img src="${img}" class="hover:scale-105 transition-transform duration-700 w-full" loading="lazy" alt="Gallery photo">`;
+
+            // [CHANGE 3] Open lightbox on click
+            div.querySelector('img').addEventListener('click', () => openLightbox(img));
+            grid.appendChild(div);
+        });
+
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            lightboxImg.src = '';
+            document.body.style.overflow = '';
+        }
+
+        // Close via X button
+        closeBtn.addEventListener('click', closeLightbox);
+
+        // Close by clicking the dark backdrop (not the image)
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
+        });
+
+        // Close with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        /* ── Scrollbar: visible only during gallery section ── */
+        const mainScroll   = document.getElementById('main-scroll');
+        const gallerySection = document.getElementById('gallery');
+
+        const galleryObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    mainScroll.classList.remove('hide-scrollbar');
+                } else {
+                    mainScroll.classList.add('hide-scrollbar');
+                }
+            });
+        }, { threshold: 0.05 });
+
+        galleryObserver.observe(gallerySection);
+    </script>
+</body>
+</html>
