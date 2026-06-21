@@ -521,6 +521,43 @@
 
     <script>
     /* ══════════════════════════════════════════════════════
+       CLEAN URL — remove any hash on load and intercept
+       all internal anchor clicks so the URL never shows
+       #home, #gallery, etc. — only the bare domain stays.
+    ══════════════════════════════════════════════════════ */
+    (function () {
+        /* Strip hash from URL on first load without a page reload */
+        if (window.location.hash) {
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+
+        /* Intercept every click on an internal hash link */
+        document.addEventListener('click', function (e) {
+            var anchor = e.target.closest('a[href^="#"]');
+            if (!anchor) return;
+
+            var targetId = anchor.getAttribute('href').slice(1); /* strip the # */
+            if (!targetId) return;
+
+            var target = document.getElementById(targetId);
+            if (!target) return;
+
+            e.preventDefault();
+
+            /* Scroll the snap-container to the section */
+            var mainScroll = document.getElementById('main-scroll');
+            if (mainScroll) {
+                mainScroll.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
+            } else {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            /* Keep the address bar clean — no hash appended */
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+        });
+    })();
+
+    /* ══════════════════════════════════════════════════════
        PORTFOLIO DATA
     ══════════════════════════════════════════════════════ */
     var portfolioData = {
