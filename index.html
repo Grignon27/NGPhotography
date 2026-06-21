@@ -2,275 +2,629 @@
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nicolas Grignon Photo Studio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        /* [CHANGE 2] Gallery uses natural height so snap-proximity lets users scroll through all photos */
-        .section-snap { scroll-snap-align: start; min-height: 100vh; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .fade-in { transition: opacity 1s ease-in-out; }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-        /* [CHANGE 3] Lightbox overlay */
+    <!-- ═══════════════════════════════════════
+         SEO — Primary
+    ═══════════════════════════════════════ -->
+    <title>Nicolas Grignon Photo Studio | Wildlife, Portrait &amp; Landscape Photography</title>
+    <meta name="description" content="Nicolas Grignon Photo Studio — Capturing the ephemeral beauty of existence through Wildlife, Street, Landscape, Portrait, Activism, Technology and Black &amp; White photography.">
+    <meta name="keywords" content="Nicolas Grignon, photographer, wildlife photography, street photography, portrait photography, landscape photography, black and white photography, photo studio, editorial photography, commercial photography">
+    <meta name="author" content="Nicolas Grignon">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://nicolasgrignon.com/">
+    <meta name="theme-color" content="#e7e5e4">
+
+    <!-- ═══════════════════════════════════════
+         SEO — Open Graph (Facebook / LinkedIn)
+    ═══════════════════════════════════════ -->
+    <meta property="og:type"        content="website">
+    <meta property="og:url"         content="https://nicolasgrignon.com/">
+    <meta property="og:site_name"   content="Nicolas Grignon Photo Studio">
+    <meta property="og:locale"      content="en_US">
+    <meta property="og:title"       content="Nicolas Grignon Photo Studio">
+    <meta property="og:description" content="Capturing the ephemeral beauty of existence through Wildlife, Street, Landscape, Portrait, Activism, Technology and Black &amp; White photography.">
+    <meta property="og:image"       content="https://nicolasgrignon.com/images/Toronto.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt"   content="Toronto cityscape by Nicolas Grignon">
+
+    <!-- ═══════════════════════════════════════
+         SEO — Twitter Card
+    ═══════════════════════════════════════ -->
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="Nicolas Grignon Photo Studio">
+    <meta name="twitter:description" content="Capturing the ephemeral beauty of existence through Wildlife, Street, Landscape, Portrait and more.">
+    <meta name="twitter:image"       content="https://nicolasgrignon.com/images/Toronto.jpg">
+
+    <!-- ═══════════════════════════════════════
+         SEO — Structured Data (JSON-LD)
+    ═══════════════════════════════════════ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "Nicolas Grignon Photo Studio",
+      "description": "Capturing the ephemeral beauty of existence through Wildlife, Street, Landscape, Portrait, Activism, Technology and Black and White photography.",
+      "url": "https://nicolasgrignon.com",
+      "telephone": "+15550123456",
+      "email": "hello@nicolasgrignon.com",
+      "image": "https://nicolasgrignon.com/images/Toronto.jpg",
+      "sameAs": [
+        "https://www.flickr.com/photos/nicolas_grignon/albums/72157654278346578/"
+      ],
+      "serviceType": [
+        "Wildlife Photography",
+        "Street Photography",
+        "Landscape Photography",
+        "Portrait Photography",
+        "Editorial Photography",
+        "Commercial Photography"
+      ]
+    }
+    </script>
+
+    <!-- ═══════════════════════════════════════
+         Fonts — preconnect for performance
+    ═══════════════════════════════════════ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* ── Cross-browser box model ── */
+        *, *::before, *::after {
+            -webkit-box-sizing: border-box;
+                    box-sizing: border-box;
+        }
+
+        body { font-family: 'Inter', sans-serif; }
+
+        /* ── Snap sections ── */
+        .section-snap {
+            scroll-snap-align: start;
+            min-height: 100vh;
+            /* dvh for modern browsers (excludes mobile browser chrome) */
+            min-height: 100dvh;
+        }
+
+        /* ── Hide scrollbar (cross-browser) ── */
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* ══════════════════════════════════════
+           HOME SECTION — no gap between nav & hero
+           Strategy: section is a flex column with
+           padding-top = navbar height. Hero wrapper
+           gets flex:1 so it fills all remaining space.
+        ══════════════════════════════════════ */
+        #home {
+            padding-top: 50px;          /* = navbar height */
+            display: -webkit-flex;
+            display:         flex;
+            -webkit-flex-direction: column;
+                    flex-direction: column;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: #fff;
+        }
+
+        #hero-wrapper {
+            position: relative;
+            width: 100%;
+            -webkit-flex: 1 1 0;
+                    flex: 1 1 0;
+            min-height: 320px;
+            overflow: hidden;
+            background: #e7e5e4;
+        }
+
+        /* Slider slides */
+        .fade-slide {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            -webkit-transition: opacity 1s ease-in-out;
+                    transition: opacity 1s ease-in-out;
+        }
+
+        /* ── Main scroll container ── */
+        #main-scroll {
+            height: 100vh;
+            height: 100dvh;
+            overflow-y: scroll;
+            /* Smooth momentum scroll on iOS */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* iOS Safari < 15 fallback (no dvh support) */
+        @supports (-webkit-touch-callout: none) and (not (height: 100dvh)) {
+            #main-scroll, .section-snap, #home {
+                height: -webkit-fill-available;
+                min-height: -webkit-fill-available;
+            }
+        }
+
+        /* ══════════════════════════════════════
+           LIGHTBOX
+        ══════════════════════════════════════ */
         #lightbox {
             display: none;
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.92);
             z-index: 9999;
-            align-items: center;
-            justify-content: center;
+            -webkit-box-align: center;
+                    align-items: center;
+            -webkit-box-pack: center;
+                    justify-content: center;
         }
-        #lightbox.active { display: flex; }
+        #lightbox.active {
+            display: -webkit-flex;
+            display:         flex;
+        }
         #lightbox-img {
             max-width: 80vw;
             max-height: 80vh;
-            object-fit: contain;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            -o-object-fit: contain;
+               object-fit: contain;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
         }
         #lightbox-close {
             position: absolute;
             top: 1.25rem;
             right: 2rem;
-            color: white;
+            color: #fff;
             font-size: 1.75rem;
             line-height: 1;
             background: none;
             border: none;
             cursor: pointer;
-            transition: color 0.2s;
+            -webkit-transition: color 0.2s;
+                    transition: color 0.2s;
             z-index: 10000;
         }
         #lightbox-close:hover { color: #a8a29e; }
 
-        /* Gallery cursor hint */
-        #gallery-grid img { cursor: pointer; }
+        /* ══════════════════════════════════════
+           GALLERY
+        ══════════════════════════════════════ */
+        #gallery-grid img {
+            display: block;
+            width: 100%;
+            cursor: pointer;
+            -webkit-transition: -webkit-transform 0.7s ease;
+                    transition:         transform 0.7s ease;
+        }
+        #gallery-grid img:hover {
+            -webkit-transform: scale(1.05);
+                    transform: scale(1.05);
+        }
+
+        /* ══════════════════════════════════════
+           FORM STATUS
+        ══════════════════════════════════════ */
+        #form-status {
+            display: none;
+            padding: 0.75rem 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+        #form-status.success { background: #dcfce7; color: #166534; }
+        #form-status.error   { background: #fee2e2; color: #991b1b; }
+
+        /* ── Respect reduced-motion preference ── */
+        @media (prefers-reduced-motion: reduce) {
+            .fade-slide, #gallery-grid img, * {
+                -webkit-transition: none !important;
+                        transition: none !important;
+                -webkit-animation: none !important;
+                        animation: none !important;
+            }
+        }
+
+        /* ── Keyboard focus rings ── */
+        a:focus-visible, button:focus-visible, input:focus-visible,
+        select:focus-visible, textarea:focus-visible {
+            outline: 2px solid #44403c;
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body class="bg-white text-stone-800 antialiased overflow-x-hidden">
 
-    <!-- [CHANGE 3] Lightbox Overlay -->
-    <div id="lightbox" aria-modal="true" role="dialog">
-        <button id="lightbox-close" aria-label="Close image">&#10005;</button>
-        <img id="lightbox-img" src="" alt="Gallery image enlarged">
+    <!-- ══════════════════════════════════════
+         LIGHTBOX OVERLAY
+    ══════════════════════════════════════ -->
+    <div id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged photo preview">
+        <button id="lightbox-close" aria-label="Close preview">&#10005;</button>
+        <img id="lightbox-img" src="" alt="Gallery photo enlarged">
     </div>
 
-    <!-- Navigation | [CHANGE 1] Background changed to light gray -->
-    <nav class="fixed top-0 left-0 w-full h-[50px] px-8 z-50 flex justify-between items-center text-stone-800 bg-stone-200/95 backdrop-blur-sm border-b border-stone-300">
-        <a href="#home" class="flex items-center gap-2 leading-none">
+    <!-- ══════════════════════════════════════
+         NAVIGATION
+         height set via inline style AND class
+         so every browser renders 50px exactly
+    ══════════════════════════════════════ -->
+    <nav role="navigation" aria-label="Main navigation"
+         class="fixed top-0 left-0 w-full z-50 flex justify-between items-center text-stone-800 bg-stone-200/95 backdrop-blur-sm border-b border-stone-300"
+         style="height:50px; padding-left:2rem; padding-right:2rem;">
+        <a href="#home" class="flex items-center gap-2 leading-none" aria-label="Nicolas Grignon Photo Studio — back to top">
             <span class="text-xl font-bold text-stone-900 tracking-tight">NG</span>
             <span class="text-xs tracking-[0.2em] uppercase font-light text-stone-800">Photography</span>
         </a>
         <div class="space-x-8 text-xs uppercase tracking-widest font-light">
-            <a href="#home" class="hover:text-stone-400 transition">Home</a>
-            <a href="#about" class="hover:text-stone-400 transition">About</a>
+            <a href="#home"    class="hover:text-stone-400 transition">Home</a>
+            <a href="#about"   class="hover:text-stone-400 transition">About</a>
             <a href="#gallery" class="hover:text-stone-400 transition">Gallery</a>
             <a href="#contact" class="hover:text-stone-400 transition">Contact</a>
         </div>
     </nav>
 
-    <!-- Main Container | [CHANGE 2] snap-mandatory → snap-proximity so gallery can scroll freely -->
-    <main id="main-scroll" class="h-screen overflow-y-scroll snap-y snap-proximity hide-scrollbar">
+    <!-- ══════════════════════════════════════
+         MAIN SCROLL CONTAINER
+         snap-y snap-proximity lets gallery
+         section scroll freely through all photos
+    ══════════════════════════════════════ -->
+    <main id="main-scroll" class="snap-y snap-proximity hide-scrollbar" aria-label="Main content">
 
-        <!-- Home Section -->
-        <section id="home" class="section-snap pt-[50px] pb-12 flex flex-col items-center justify-center bg-white">
-            <div class="relative w-full h-[460px] bg-stone-100 shadow-inner overflow-hidden">
-                <div id="hero-slider" class="w-full h-full absolute inset-0">
-                    <!-- Images injected via JS -->
-                </div>
+        <!-- ① HOME — hero image flush with navbar -->
+        <section id="home" aria-label="Hero slideshow">
+            <!-- Hero fills all vertical space above the title block -->
+            <div id="hero-wrapper" aria-hidden="true">
+                <!-- Slides injected by JS -->
             </div>
 
-            <div class="mt-12 text-center text-stone-800">
-                <h2 class="text-4xl font-extralight mb-2">Nicolas Grignon Photo Studio</h2>
-                <p class="text-xs tracking-[0.3em] uppercase">Photography in light, silence, and emotion</p>
-                <div id="slider-dots" class="mt-6 flex justify-center gap-2"></div>
+            <!-- Title + dots — shrinks to natural height -->
+            <div class="py-10 text-center text-stone-800" style="flex-shrink:0;">
+                <h1 class="text-4xl font-extralight mb-2">Nicolas Grignon Photo Studio</h1>
+                <p class="text-xs tracking-[0.3em] uppercase text-stone-500">Photography in light, silence, and emotion</p>
+                <div id="slider-dots" class="mt-6 flex justify-center gap-2"
+                     role="tablist" aria-label="Slide navigation">
+                </div>
             </div>
         </section>
 
-        <!-- About Section -->
-        <section id="about" class="section-snap flex flex-col md:flex-row items-center justify-center p-12 md:p-24 max-w-7xl mx-auto gap-12">
-            <div class="flex-1 w-full h-[60vh] bg-stone-200 shadow-inner">
-                <img src="images/Nicolas.jpeg" alt="Nicolas Grignon" class="w-full h-full object-cover">
+        <!-- ② ABOUT -->
+        <section id="about"
+                 class="section-snap flex flex-col md:flex-row items-center justify-center p-12 md:p-24 gap-12 max-w-7xl mx-auto"
+                 aria-label="About Nicolas Grignon">
+            <div class="flex-1 w-full overflow-hidden shadow-inner" style="height:60vh;">
+                <img src="images/Nicolas.jpeg"
+                     alt="Portrait of Nicolas Grignon, wildlife and portrait photographer"
+                     class="w-full h-full object-cover"
+                     loading="eager">
             </div>
             <div class="flex-1">
-                <h3 class="text-xs uppercase tracking-widest mb-6 border-b border-stone-300 pb-2 inline-block">About the artist</h3>
-                <p class="text-lg font-light leading-relaxed mb-8 text-stone-600">Capturing the ephemeral beauty of existence through a lens, I show you the true essence of life on Earth through Wildlife, Street, landscape, Portrait, Activism, Technology and Black and white photography</p>
-                <!-- [CHANGE 4] Flickr button linked — replace YOUR_FLICKR_URL with your actual Flickr profile URL -->
-                <a href="https://www.flickr.com/photos/nicolas_grignon/albums/72157654278346578/" target="_blank" rel="noopener noreferrer"
+                <h2 class="text-xs uppercase tracking-widest mb-6 border-b border-stone-300 pb-2 inline-block">About the artist</h2>
+                <p class="text-lg font-light leading-relaxed mb-8 text-stone-600">
+                    Capturing the ephemeral beauty of existence through a lens, I show you the true essence of life on Earth through Wildlife, Street, Landscape, Portrait, Activism, Technology and Black and White photography.
+                </p>
+                <a href="https://www.flickr.com/photos/nicolas_grignon/albums/72157654278346578/"
+                   target="_blank" rel="noopener noreferrer"
                    class="border border-stone-800 px-8 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition inline-block">
                     Visit Flickr
                 </a>
             </div>
         </section>
 
-        <!-- Gallery Section | [CHANGE 2] No section-snap so it grows to natural height and is fully scrollable -->
-        <section id="gallery" class="scroll-snap-align-start py-16 px-12 md:px-24 max-w-7xl mx-auto" style="scroll-snap-align: start;">
-            <h3 class="text-center text-xs uppercase tracking-widest mb-12">Selected Works</h3>
+        <!-- ③ GALLERY — no section-snap so it grows naturally and scrolls freely -->
+        <section id="gallery"
+                 class="py-16 px-12 md:px-24 max-w-7xl mx-auto"
+                 style="scroll-snap-align:start;"
+                 aria-label="Selected works gallery">
+            <h2 class="text-center text-xs uppercase tracking-widest mb-12">Selected Works</h2>
             <div id="gallery-grid" class="columns-1 md:columns-3 gap-4 space-y-4">
-                <!-- Images injected via JS — click any thumbnail to open lightbox [CHANGE 3] -->
+                <!-- Thumbnails injected by JS — click to open lightbox -->
             </div>
-            <div class="h-16"></div><!-- bottom breathing room -->
+            <div class="h-16" aria-hidden="true"></div>
         </section>
 
-        <!-- Contact Section -->
-        <section id="contact" class="section-snap flex flex-col items-center justify-center p-12 text-center">
-            <h3 class="text-xs uppercase tracking-widest mb-12">Get in touch</h3>
+        <!-- ④ CONTACT -->
+        <section id="contact"
+                 class="section-snap flex flex-col items-center justify-center p-12 text-center"
+                 aria-label="Contact Nicolas Grignon">
+            <h2 class="text-xs uppercase tracking-widest mb-12">Get in touch</h2>
             <div class="w-full max-w-md space-y-6">
+
                 <p class="text-2xl font-light italic text-stone-500">+1 (555) 012-3456</p>
 
-                <!-- [CHANGE 5] Email is now a mailto button -->
+                <!-- Direct email link -->
                 <a href="mailto:hello@nicolasgrignon.com"
                    class="inline-block border border-stone-800 px-8 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition">
                     hello@nicolasgrignon.com
                 </a>
 
-                <form class="flex flex-col gap-4 mt-8">
-                    <input type="text" placeholder="Name"
-                           class="border-b border-stone-300 py-2 focus:outline-none focus:border-stone-800 bg-transparent">
-                    <input type="email" placeholder="Email"
-                           class="border-b border-stone-300 py-2 focus:outline-none focus:border-stone-800 bg-transparent">
-                    <select class="border-b border-stone-300 py-2 text-stone-400 bg-transparent">
-                        <option>Project Type</option>
-                        <option>Editorial</option>
-                        <option>Commercial</option>
-                        <option>Portrait</option>
+                <!--
+                    FORMSPREE FORM
+                    ─────────────
+                    • action points to https://formspree.io/f/xwvjgrpw
+                    • Submitted via fetch (AJAX) so the page never reloads
+                    • All inputs have name="" attributes so Formspree labels fields correctly
+                    • _replyto tells Formspree to use the sender's email as reply-to
+                -->
+                <form id="contact-form"
+                      action="https://formspree.io/f/xwvjgrpw"
+                      method="POST"
+                      novalidate
+                      class="flex flex-col gap-4 mt-8"
+                      aria-label="Contact form">
+
+                    <input  type="hidden" name="_replyto" id="replyto-hidden">
+
+                    <input  type="text"
+                            name="name"
+                            id="field-name"
+                            placeholder="Name"
+                            required
+                            autocomplete="name"
+                            class="border-b border-stone-300 py-2 text-left focus:outline-none focus:border-stone-800 bg-transparent">
+
+                    <input  type="email"
+                            name="email"
+                            id="field-email"
+                            placeholder="Email"
+                            required
+                            autocomplete="email"
+                            class="border-b border-stone-300 py-2 text-left focus:outline-none focus:border-stone-800 bg-transparent">
+
+                    <select name="project_type"
+                            id="field-type"
+                            class="border-b border-stone-300 py-2 text-stone-400 text-left bg-transparent">
+                        <option value="">Project Type</option>
+                        <option value="Editorial">Editorial</option>
+                        <option value="Commercial">Commercial</option>
+                        <option value="Portrait">Portrait</option>
                     </select>
-                    <textarea placeholder="Message"
-                              class="border-b border-stone-300 py-2 focus:outline-none focus:border-stone-800 bg-transparent"></textarea>
-                    <button type="submit"
+
+                    <textarea name="message"
+                              id="field-message"
+                              placeholder="Message"
+                              rows="4"
+                              required
+                              class="border-b border-stone-300 py-2 text-left focus:outline-none focus:border-stone-800 bg-transparent resize-none"></textarea>
+
+                    <button type="submit" id="submit-btn"
                             class="bg-stone-800 text-white py-3 uppercase tracking-widest text-xs mt-4 hover:bg-stone-600 transition">
-                        Submit
+                        Send message
                     </button>
+
+                    <!-- Success / error feedback -->
+                    <div id="form-status" role="alert" aria-live="polite"></div>
                 </form>
             </div>
         </section>
-    </main>
+
+    </main><!-- /main -->
 
     <script>
-        /**
-         * NOTE FOR DEVELOPER:
-         * Replace 'YOUR_FLICKR_URL' in the About section anchor tag with your actual
-         * Flickr profile username/ID. Example: https://www.flickr.com/people/nicolas_grignon/
-         */
-        const portfolioData = {
-            heroImages: [
-                "images/Toronto.jpg",
-                "images/oldman.jpg",
-                "images/Kawartha.jpg",
-                "images/Lake.jpg"
-            ],
-            galleryImages: [
-                "images/F22.jpg",
-                "images/Beth.jpg",
-                "images/NotShy.jpg",
-                "images/BlueAngel.jpg",
-                "images/Cox.jpg",
-                "images/Lambo.jpg",
-                "images/ParisTexas.jpg",
-                "images/Mustang.jpg",
-                "images/Squirrel.jpg",
-				"images/Toronto.jpg",
-                "images/Corvette.jpg",
-                "images/oldman.jpg",
-                "images/Eagle.jpg",
-                "images/Jazz.jpg",
-                "images/Billy.jpg",
-                "images/Kawartha.jpg",
-                "images/Mustang.jpg",
-                "images/Squirrel.jpg",
-                "images/Volcan.jpg"
-            ]
-        };
+    /* ══════════════════════════════════════════════════════
+       PORTFOLIO DATA
+    ══════════════════════════════════════════════════════ */
+    var portfolioData = {
+        heroImages: [
+            { src: "images/Toronto.jpg",  alt: "Toronto skyline at dusk" },
+            { src: "images/oldman.jpg",   alt: "Elderly man portrait" },
+            { src: "images/Kawartha.jpg", alt: "Kawartha Lakes landscape" },
+            { src: "images/Lake.jpg",     alt: "Lake reflection landscape" }
+        ],
+        galleryImages: [
+            { src: "images/F22.jpg",         alt: "F-22 Raptor fighter jet" },
+            { src: "images/Beth.jpg",         alt: "Portrait photography" },
+            { src: "images/NotShy.jpg",       alt: "Wildlife photography" },
+            { src: "images/BlueAngel.jpg",    alt: "Blue Angels aerobatic display" },
+            { src: "images/Cox.jpg",          alt: "Photography by Nicolas Grignon" },
+            { src: "images/Lambo.jpg",        alt: "Lamborghini automotive photography" },
+            { src: "images/ParisTexas.jpg",   alt: "Paris Texas street photography" },
+            { src: "images/Mustang.jpg",      alt: "Ford Mustang automotive photography" },
+            { src: "images/Squirrel.jpg",     alt: "Squirrel wildlife photography" },
+            { src: "images/Toronto.jpg",      alt: "Toronto cityscape photography" },
+            { src: "images/Corvette.jpg",     alt: "Chevrolet Corvette automotive photography" },
+            { src: "images/oldman.jpg",       alt: "Elder man portrait photography" },
+            { src: "images/Eagle.jpg",        alt: "Eagle in flight wildlife photography" },
+            { src: "images/Jazz.jpg",         alt: "Jazz musician photography" },
+            { src: "images/Billy.jpg",        alt: "Street portrait photography" },
+            { src: "images/Kawartha.jpg",     alt: "Kawartha Lakes Ontario landscape" },
+            { src: "images/Volcan.jpg",       alt: "Volcano landscape photography" }
+        ]
+    };
 
-        /* ── Hero Slider ── */
-        const slider = document.getElementById('hero-slider');
-        const dotsContainer = document.getElementById('slider-dots');
-        let currentIndex = 0;
+    /* ══════════════════════════════════════════════════════
+       HERO SLIDER
+    ══════════════════════════════════════════════════════ */
+    var heroWrapper   = document.getElementById('hero-wrapper');
+    var dotsContainer = document.getElementById('slider-dots');
+    var currentIndex  = 0;
+    var slides        = [];
+    var dots          = [];
 
-        portfolioData.heroImages.forEach((img, i) => {
-            const div = document.createElement('div');
-            div.className = `absolute inset-0 bg-cover bg-center fade-in ${i === 0 ? 'opacity-100' : 'opacity-0'}`;
-            div.style.backgroundImage = `url('${img}')`;
-            slider.appendChild(div);
+    portfolioData.heroImages.forEach(function(item, i) {
+        var div = document.createElement('div');
+        div.className = 'fade-slide';
+        div.style.backgroundImage = "url('" + item.src + "')";
+        div.style.opacity = i === 0 ? '1' : '0';
+        div.setAttribute('aria-label', item.alt);
+        heroWrapper.appendChild(div);
+        slides.push(div);
 
-            const dot = document.createElement('button');
-            dot.className = `w-2 h-2 rounded-full transition-all ${i === 0 ? 'bg-stone-800' : 'bg-stone-400'}`;
-            dotsContainer.appendChild(dot);
-        });
+        var dot = document.createElement('button');
+        dot.className = 'w-2 h-2 rounded-full transition-all ' + (i === 0 ? 'bg-stone-800' : 'bg-stone-400');
+        dot.setAttribute('role', 'tab');
+        dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+        dot.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+        /* capture i with IIFE */
+        (function(idx) {
+            dot.addEventListener('click', function() { goToSlide(idx); });
+        })(i);
+        dotsContainer.appendChild(dot);
+        dots.push(dot);
+    });
 
-        setInterval(() => {
-            const slides = slider.children;
-            const dots = dotsContainer.children;
-            if (slides.length === 0) return;
+    function goToSlide(index) {
+        slides[currentIndex].style.opacity = '0';
+        dots[currentIndex].classList.remove('bg-stone-800');
+        dots[currentIndex].classList.add('bg-stone-400');
+        dots[currentIndex].setAttribute('aria-selected', 'false');
 
-            slides[currentIndex].classList.replace('opacity-100', 'opacity-0');
-            dots[currentIndex].classList.replace('bg-stone-800', 'bg-stone-400');
+        currentIndex = index;
 
-            currentIndex = (currentIndex + 1) % slides.length;
+        slides[currentIndex].style.opacity = '1';
+        dots[currentIndex].classList.remove('bg-stone-400');
+        dots[currentIndex].classList.add('bg-stone-800');
+        dots[currentIndex].setAttribute('aria-selected', 'true');
+    }
 
-            slides[currentIndex].classList.replace('opacity-0', 'opacity-100');
-            dots[currentIndex].classList.replace('bg-stone-400', 'bg-stone-800');
-        }, 5000);
+    /* Auto-advance every 5 s */
+    setInterval(function() {
+        goToSlide((currentIndex + 1) % slides.length);
+    }, 5000);
 
-        /* ── Gallery Grid + Lightbox ── */
-        const grid        = document.getElementById('gallery-grid');
-        const lightbox    = document.getElementById('lightbox');
-        const lightboxImg = document.getElementById('lightbox-img');
-        const closeBtn    = document.getElementById('lightbox-close');
+    /* ══════════════════════════════════════════════════════
+       GALLERY GRID + LIGHTBOX
+    ══════════════════════════════════════════════════════ */
+    var grid        = document.getElementById('gallery-grid');
+    var lightbox    = document.getElementById('lightbox');
+    var lightboxImg = document.getElementById('lightbox-img');
+    var closeBtn    = document.getElementById('lightbox-close');
 
-        portfolioData.galleryImages.forEach(img => {
-            const div = document.createElement('div');
-            div.className = 'break-inside-avoid overflow-hidden';
-            div.innerHTML = `<img src="${img}" class="hover:scale-105 transition-transform duration-700 w-full" loading="lazy" alt="Gallery photo">`;
+    portfolioData.galleryImages.forEach(function(item) {
+        var wrapper = document.createElement('div');
+        wrapper.className = 'break-inside-avoid overflow-hidden';
 
-            // [CHANGE 3] Open lightbox on click
-            div.querySelector('img').addEventListener('click', () => openLightbox(img));
-            grid.appendChild(div);
-        });
+        var img = document.createElement('img');
+        img.src     = item.src;
+        img.alt     = item.alt + ' — Nicolas Grignon Photo Studio';
+        img.loading = 'lazy';
+        /* capture item with IIFE */
+        (function(src, alt) {
+            img.addEventListener('click', function() { openLightbox(src, alt); });
+        })(item.src, item.alt);
 
-        function openLightbox(src) {
-            lightboxImg.src = src;
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+        wrapper.appendChild(img);
+        grid.appendChild(wrapper);
+    });
 
-        function closeLightbox() {
-            lightbox.classList.remove('active');
-            lightboxImg.src = '';
-            document.body.style.overflow = '';
-        }
+    function openLightbox(src, alt) {
+        lightboxImg.src = src;
+        lightboxImg.alt = alt || 'Gallery photo';
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        closeBtn.focus();
+    }
 
-        // Close via X button
-        closeBtn.addEventListener('click', closeLightbox);
+    function closeLightbox() {
+        lightbox.classList.remove('active');
+        lightboxImg.src = '';
+        document.body.style.overflow = '';
+    }
 
-        // Close by clicking the dark backdrop (not the image)
-        lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) closeLightbox();
-        });
+    closeBtn.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeLightbox();
+    });
 
-        // Close with Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeLightbox();
-        });
+    /* ══════════════════════════════════════════════════════
+       SCROLLBAR — visible only while gallery is in view
+    ══════════════════════════════════════════════════════ */
+    var mainScroll     = document.getElementById('main-scroll');
+    var gallerySection = document.getElementById('gallery');
 
-        /* ── Scrollbar: visible only during gallery section ── */
-        const mainScroll   = document.getElementById('main-scroll');
-        const gallerySection = document.getElementById('gallery');
-
-        const galleryObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
                     mainScroll.classList.remove('hide-scrollbar');
                 } else {
                     mainScroll.classList.add('hide-scrollbar');
                 }
             });
-        }, { threshold: 0.05 });
+        }, { threshold: 0.05 }).observe(gallerySection);
+    }
 
-        galleryObserver.observe(gallerySection);
+    /* ══════════════════════════════════════════════════════
+       FORMSPREE — AJAX SUBMISSION
+       Sends to https://formspree.io/f/xwvjgrpw
+       (configured in Formspree dashboard to forward
+        to nicolasgrignon.graphicdesigner@gmail.com)
+    ══════════════════════════════════════════════════════ */
+    var contactForm = document.getElementById('contact-form');
+    var formStatus  = document.getElementById('form-status');
+    var submitBtn   = document.getElementById('submit-btn');
+    var emailField  = document.getElementById('field-email');
+    var replyTo     = document.getElementById('replyto-hidden');
+
+    /* Keep _replyto in sync with the email field */
+    emailField.addEventListener('input', function() {
+        replyTo.value = emailField.value;
+    });
+
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        /* Basic client-side validation */
+        var name    = document.getElementById('field-name').value.trim();
+        var email   = emailField.value.trim();
+        var message = document.getElementById('field-message').value.trim();
+
+        if (!name || !email || !message) {
+            showStatus('Please fill in your name, email, and message.', 'error');
+            return;
+        }
+
+        submitBtn.textContent = 'Sending…';
+        submitBtn.disabled = true;
+        formStatus.style.display = 'none';
+
+        fetch(contactForm.action, {
+            method: 'POST',
+            body: new FormData(contactForm),
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(function(response) {
+            if (response.ok) {
+                showStatus('Thank you — your message has been sent!', 'success');
+                contactForm.reset();
+                resetBtn();
+            } else {
+                return response.json().then(function(data) {
+                    var msg = (data.errors && data.errors.length)
+                        ? data.errors.map(function(err) { return err.message; }).join(', ')
+                        : 'Submission failed. Please try again.';
+                    showStatus(msg, 'error');
+                    resetBtn();
+                });
+            }
+        })
+        .catch(function() {
+            showStatus('Something went wrong. Please email us directly at hello@nicolasgrignon.com', 'error');
+            resetBtn();
+        });
+    });
+
+    function showStatus(msg, type) {
+        formStatus.textContent = msg;
+        formStatus.className = type;
+        formStatus.style.display = 'block';
+    }
+
+    function resetBtn() {
+        submitBtn.textContent = 'Send message';
+        submitBtn.disabled = false;
+    }
     </script>
+
 </body>
 </html>
