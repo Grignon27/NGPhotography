@@ -172,10 +172,11 @@
             display:         flex;
         }
         #lightbox-img {
-            max-width: 80vw;
-            max-height: 80vh;
-            -o-object-fit: contain;
-               object-fit: contain;
+            width: 80vw;
+            height: 80vh;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
         }
         #lightbox-close {
@@ -197,16 +198,63 @@
         /* ══════════════════════════════════════
            GALLERY
         ══════════════════════════════════════ */
+
+        /* Grid layout — uniform patchwork */
+        #gallery-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        @media (min-width: 768px) {
+            #gallery-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Photo wrapper — fixed 3:2 aspect ratio on every cell for a
+           perfectly uniform patchwork: same width, same height, same gap
+           in both directions, tops and bottoms always aligned.             */
+        #gallery-grid .photo-wrapper {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 3 / 2;
+        }
+        #gallery-grid .photo-wrapper:hover img {
+            -webkit-transform: scale(1.05);
+                    transform: scale(1.05);
+        }
+
         #gallery-grid img {
             display: block;
             width: 100%;
-            cursor: pointer;
+            height: 100%;
+            -o-object-fit: cover;
+               object-fit: cover;
+            -o-object-position: center;
+               object-position: center;
             -webkit-transition: -webkit-transform 0.7s ease;
                     transition:         transform 0.7s ease;
+            pointer-events: none;        /* overlay handles all mouse events */
+            -webkit-user-drag: none;
+            -webkit-user-select: none;
+                    user-select: none;
         }
-        #gallery-grid img:hover {
-            -webkit-transform: scale(1.05);
-                    transform: scale(1.05);
+
+        /* Transparent overlay — blocks right-click / drag on gallery images */
+        .photo-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            cursor: pointer;
+            -webkit-user-select: none;
+                    user-select: none;
+        }
+
+        /* Global protection: disable native drag & selection on all images */
+        img {
+            -webkit-user-drag: none;
+            -webkit-user-select: none;
+                    user-select: none;
         }
 
         /* ══════════════════════════════════════
@@ -248,7 +296,7 @@
     ══════════════════════════════════════ -->
     <div id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged photo preview">
         <button id="lightbox-close" aria-label="Close preview">&#10005;</button>
-        <img id="lightbox-img" src="" alt="Gallery photo enlarged">
+        <div id="lightbox-img" role="img" aria-label="Gallery photo enlarged"></div>
     </div>
 
     <!-- ══════════════════════════════════════
@@ -304,19 +352,15 @@
                 <img src="images/Nicolas.jpeg"
                      alt="Portrait of Nicolas Grignon, wildlife and portrait photographer"
                      class="w-full h-full object-cover"
-                     loading="eager">
+                     loading="eager"
+                     draggable="false"
+                     oncontextmenu="return false">
             </div>
             <div class="flex-1">
                 <h2 class="text-xs uppercase tracking-widest mb-6 border-b border-stone-300 pb-2 inline-block">About the artist</h2>
                 <p class="text-lg font-light leading-relaxed mb-8 text-stone-600">
-                    Capturing the ephemeral beauty of existence through a lens, I show you the true essence of life on Earth through Wildlife, Street, Landscape, Portrait, Activism, Technology and Black and White photography.<br>
-                    FYI: My gallery only shows some of my best photography, for more, please click on my Flikr page.
+                    Capturing the ephemeral beauty of existence through a lens, I show you the true essence of life on Earth through Wildlife, Street, Landscape, Portrait, Activism, Technology and Black and White photography.
                 </p>
-                <a href="https://www.flickr.com/photos/nicolas_grignon/albums/72157654278346578/"
-                   target="_blank" rel="noopener noreferrer"
-                   class="border border-stone-800 px-8 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition inline-block">
-                    Visit Flickr
-                </a>
             </div>
         </section>
 
@@ -326,7 +370,20 @@
                  style="scroll-snap-align:start;"
                  aria-label="Selected works gallery">
             <h2 class="text-center text-xs uppercase tracking-widest mb-12">Selected Works</h2>
-            <div id="gallery-grid" class="columns-1 md:columns-3 gap-4 space-y-4">
+
+            <!-- Flickr teaser -->
+            <div class="text-center mb-12">
+                <p class="text-base font-light text-stone-500 leading-relaxed mb-6 max-w-xl mx-auto">
+                    These photographs are only the tip of the iceberg — if you want to see more, click on my Flickr page below.
+                </p>
+                <a href="https://www.flickr.com/photos/nicolas_grignon/albums/72157654278346578/"
+                   target="_blank" rel="noopener noreferrer"
+                   class="border border-stone-800 px-8 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition inline-block">
+                    Visit Flickr
+                </a>
+            </div>
+
+            <div id="gallery-grid">
                 <!-- Thumbnails injected by JS — click to open lightbox -->
             </div>
             <div class="h-16" aria-hidden="true"></div>
@@ -655,24 +712,33 @@
 
     portfolioData.galleryImages.forEach(function(item) {
         var wrapper = document.createElement('div');
-        wrapper.className = 'break-inside-avoid overflow-hidden';
+        wrapper.className = 'photo-wrapper';
 
         var img = document.createElement('img');
-        img.src     = item.src;
-        img.alt     = item.alt + ' — Nicolas Grignon Photo Studio';
-        img.loading = 'lazy';
+        img.src       = item.src;
+        img.alt       = item.alt + ' — Nicolas Grignon Photo Studio';
+        img.loading   = 'lazy';
+        img.setAttribute('draggable', 'false');
+        img.setAttribute('oncontextmenu', 'return false');
+
+        /* Transparent overlay — handles click, blocks right-click / drag */
+        var overlay = document.createElement('div');
+        overlay.className = 'photo-overlay';
+        overlay.setAttribute('oncontextmenu', 'return false');
+        overlay.setAttribute('ondragstart', 'return false');
         /* capture item with IIFE */
         (function(src, alt) {
-            img.addEventListener('click', function() { openLightbox(src, alt); });
+            overlay.addEventListener('click', function() { openLightbox(src, alt); });
         })(item.src, item.alt);
 
         wrapper.appendChild(img);
+        wrapper.appendChild(overlay);
         grid.appendChild(wrapper);
     });
 
     function openLightbox(src, alt) {
-        lightboxImg.src = src;
-        lightboxImg.alt = alt || 'Gallery photo';
+        lightboxImg.style.backgroundImage = "url('" + src + "')";
+        lightboxImg.setAttribute('aria-label', alt || 'Gallery photo');
         lightbox.classList.add('active');
         document.body.style.overflow = 'hidden';
         closeBtn.focus();
@@ -680,7 +746,7 @@
 
     function closeLightbox() {
         lightbox.classList.remove('active');
-        lightboxImg.src = '';
+        lightboxImg.style.backgroundImage = 'none';
         document.body.style.overflow = '';
     }
 
@@ -690,6 +756,14 @@
     });
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeLightbox();
+    });
+
+    /* Prevent right-click "Save Image As" and drag-to-desktop on all images */
+    document.addEventListener('contextmenu', function(e) {
+        if (e.target.tagName === 'IMG') e.preventDefault();
+    });
+    document.addEventListener('dragstart', function(e) {
+        if (e.target.tagName === 'IMG') e.preventDefault();
     });
 
     /* ══════════════════════════════════════════════════════
