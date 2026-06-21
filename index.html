@@ -267,6 +267,7 @@
             <a href="#home"    class="hover:text-stone-400 transition">Home</a>
             <a href="#about"   class="hover:text-stone-400 transition">About</a>
             <a href="#gallery" class="hover:text-stone-400 transition">Gallery</a>
+            <a href="#prices"  class="hover:text-stone-400 transition">Prices</a>
             <a href="#contact" class="hover:text-stone-400 transition">Contact</a>
         </div>
     </nav>
@@ -330,7 +331,117 @@
             <div class="h-16" aria-hidden="true"></div>
         </section>
 
-        <!-- ④ CONTACT -->
+        <!-- ④ PRICES -->
+        <section id="prices"
+                 class="section-snap flex flex-col items-center justify-center p-12 md:p-24 bg-stone-50"
+                 aria-label="Pricing">
+
+            <h2 class="text-xs uppercase tracking-widest mb-16">Pricing</h2>
+
+            <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
+
+                <!-- ── Image Rights ── -->
+                <div class="flex flex-col">
+                    <h3 class="text-xs uppercase tracking-widest mb-6 border-b border-stone-300 pb-2">Image Rights</h3>
+                    <p class="text-sm font-light leading-relaxed text-stone-500 mb-6">
+                        Acquire a license to use any photograph from the studio for personal, editorial, or commercial purposes.
+                    </p>
+                    <ul class="text-sm font-light text-stone-500 space-y-3 flex-1">
+                        <li class="flex justify-between">
+                            <span>Personal use</span>
+                            <span class="text-stone-800">on request</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Editorial license</span>
+                            <span class="text-stone-800">on request</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Commercial license</span>
+                            <span class="text-stone-800">on request</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Exclusive rights</span>
+                            <span class="text-stone-800">on request</span>
+                        </li>
+                    </ul>
+                    <a href="#contact"
+                       class="mt-8 border border-stone-800 px-6 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition text-center">
+                        Inquire
+                    </a>
+                </div>
+
+                <!-- ── Photography Session ── -->
+                <div class="flex flex-col">
+                    <h3 class="text-xs uppercase tracking-widest mb-6 border-b border-stone-300 pb-2">Photography Session</h3>
+                    <p class="text-sm font-light leading-relaxed text-stone-500 mb-6">
+                        Flat-rate hourly service for portraits, events, commercial shoots, and more.
+                    </p>
+                    <ul class="text-sm font-light text-stone-500 space-y-3 flex-1">
+                        <li class="flex justify-between">
+                            <span>Base rate</span>
+                            <span class="text-stone-800 font-normal">$60 / hr</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Weekend surcharge</span>
+                            <span class="text-stone-800">+ $10</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Travel beyond 10 km</span>
+                            <span class="text-stone-800">+ $0.50 / km</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Rush / same-day booking</span>
+                            <span class="text-stone-800">+ 20 %</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Second photographer</span>
+                            <span class="text-stone-800">on request</span>
+                        </li>
+                    </ul>
+                    <a href="#contact"
+                       class="mt-8 border border-stone-800 px-6 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition text-center">
+                        Book a session
+                    </a>
+                </div>
+
+                <!-- ── Prints ── -->
+                <div class="flex flex-col">
+                    <h3 class="text-xs uppercase tracking-widest mb-6 border-b border-stone-300 pb-2">Prints</h3>
+                    <p class="text-sm font-light leading-relaxed text-stone-500 mb-6">
+                        Museum-quality fine-art prints, professionally produced and ready to frame.
+                    </p>
+                    <ul class="text-sm font-light text-stone-500 space-y-3 flex-1">
+                        <li class="flex justify-between">
+                            <span>8 × 10 in</span>
+                            <span class="text-stone-800">from $50</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>11 × 14 in</span>
+                            <span class="text-stone-800">from $90</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>16 × 20 in</span>
+                            <span class="text-stone-800">from $150</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>24 × 30 in</span>
+                            <span class="text-stone-800">from $250</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Custom sizes</span>
+                            <span class="text-stone-800">on request</span>
+                        </li>
+                    </ul>
+                    <a href="#contact"
+                       class="mt-8 border border-stone-800 px-6 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition text-center">
+                        Order a print
+                    </a>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ⑤ CONTACT -->
         <section id="contact"
                  class="section-snap flex flex-col items-center justify-center p-12 text-center"
                  aria-label="Contact Nicolas Grignon">
@@ -414,12 +525,12 @@
     var portfolioData = {
         heroImages: [
             { src: "images/Toronto.jpg",  alt: "Toronto skyline at dusk" },
-            { src: "images/oldman.jpg",   alt: "Elderly man portrait" },
+            { src: "images/oldman.jpg",   alt: "Tunisian Elderly man portrait" },
             { src: "images/Kawartha.jpg", alt: "Kawartha Lakes landscape" },
             { src: "images/Lake.jpg",     alt: "Lake reflection landscape" }
         ],
         galleryImages: [
-            { src: "images/F22.jpg",         alt: "F-22 Raptor fighter jet" },
+            { src: "images/F22.jpg",          alt: "F-22 Raptor fighter jet" },
             { src: "images/Beth.jpg",         alt: "Portrait photography" },
             { src: "images/NotShy.jpg",       alt: "Wildlife photography" },
             { src: "images/BlueAngel.jpg",    alt: "Blue Angels aerobatic display" },
@@ -434,7 +545,14 @@
             { src: "images/Eagle.jpg",        alt: "Eagle in flight wildlife photography" },
             { src: "images/Jazz.jpg",         alt: "Jazz musician photography" },
             { src: "images/Billy.jpg",        alt: "Street portrait photography" },
-            { src: "images/Kawartha.jpg",     alt: "Kawartha Lakes Ontario landscape" },
+            { src: "images/manitoba.jpg",     alt: "Manitoba landscape" },
+			{ src: "images/macro.jpg",     	  alt: "Macro Photography" },
+			{ src: "images/Singer1.jpg",      alt: "Concert Event" },
+			{ src: "images/Street.jpg",       alt: "Street Photography" },
+			{ src: "images/Fundy.jpg",        alt: "Fundy National Park landscape" },
+			{ src: "images/Grass.jpg",        alt: "Detail of a Grasshopper" },
+			{ src: "images/Glass.jpg",        alt: "Black and White Contrast" },
+			{ src: "images/Kawartha.jpg",     alt: "Kawartha Lakes Ontario landscape" },
             { src: "images/Volcan.jpg",       alt: "Volcano landscape photography" }
         ]
     };
