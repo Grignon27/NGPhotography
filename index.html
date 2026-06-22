@@ -287,6 +287,58 @@
             outline: 2px solid #44403c;
             outline-offset: 2px;
         }
+
+        /* ══════════════════════════════════════
+           EMAIL POPUP MODAL
+        ══════════════════════════════════════ */
+        #email-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 9998;
+            -webkit-box-align: center;
+                    align-items: center;
+            -webkit-box-pack: center;
+                    justify-content: center;
+            padding: 1.5rem;
+        }
+        #email-modal.active {
+            display: -webkit-flex;
+            display:         flex;
+        }
+        #email-modal-box {
+            background: #fff;
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem 2rem 2rem;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        #email-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.25rem;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            line-height: 1;
+            cursor: pointer;
+            color: #78716c;
+            -webkit-transition: color 0.2s;
+                    transition: color 0.2s;
+        }
+        #email-modal-close:hover { color: #1c1917; }
+        #modal-form-status {
+            display: none;
+            padding: 0.6rem 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+        #modal-form-status.success { background: #dcfce7; color: #166534; }
+        #modal-form-status.error   { background: #fee2e2; color: #991b1b; }
     </style>
 </head>
 <body class="bg-white text-stone-800 antialiased overflow-x-hidden">
@@ -297,6 +349,57 @@
     <div id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged photo preview">
         <button id="lightbox-close" aria-label="Close preview">&#10005;</button>
         <div id="lightbox-img" role="img" aria-label="Gallery photo enlarged"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         EMAIL POPUP MODAL
+    ══════════════════════════════════════ -->
+    <div id="email-modal" role="dialog" aria-modal="true" aria-label="Send an email">
+        <div id="email-modal-box">
+            <button id="email-modal-close" aria-label="Close">&#10005;</button>
+            <h2 class="text-xs uppercase tracking-widest mb-1">Send a message</h2>
+            <p class="text-xs text-stone-400 tracking-wide mb-6">nicolas.grignon.graphicdesigner@gmail.com</p>
+
+            <form id="modal-contact-form"
+                  action="https://formspree.io/f/xwvjgrpw"
+                  method="POST"
+                  novalidate
+                  class="flex flex-col gap-4"
+                  aria-label="Quick contact form">
+
+                <input type="hidden" name="_replyto" id="modal-replyto-hidden">
+
+                <input  type="text"
+                        name="name"
+                        id="modal-field-name"
+                        placeholder="Your name"
+                        required
+                        autocomplete="name"
+                        class="border-b border-stone-300 py-2 text-sm text-left focus:outline-none focus:border-stone-800 bg-transparent">
+
+                <input  type="email"
+                        name="email"
+                        id="modal-field-email"
+                        placeholder="Your email"
+                        required
+                        autocomplete="email"
+                        class="border-b border-stone-300 py-2 text-sm text-left focus:outline-none focus:border-stone-800 bg-transparent">
+
+                <textarea name="message"
+                          id="modal-field-message"
+                          placeholder="Your message"
+                          rows="4"
+                          required
+                          class="border-b border-stone-300 py-2 text-sm text-left focus:outline-none focus:border-stone-800 bg-transparent resize-none"></textarea>
+
+                <button type="submit" id="modal-submit-btn"
+                        class="bg-stone-800 text-white py-3 uppercase tracking-widest text-xs mt-2 hover:bg-stone-600 transition">
+                    Send message
+                </button>
+
+                <div id="modal-form-status" role="alert" aria-live="polite"></div>
+            </form>
+        </div>
     </div>
 
     <!-- ══════════════════════════════════════
@@ -508,11 +611,11 @@
 
                 <p class="text-2xl font-light italic text-stone-500">+1 (555) 012-3456</p>
 
-                <!-- Direct email link -->
-                <a href="mailto:hello@nicolasgrignon.com"
-                   class="inline-block border border-stone-800 px-8 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition">
-                    hello@nicolasgrignon.com
-                </a>
+                <!-- Email link — opens popup form -->
+                <button id="open-email-modal"
+                        class="inline-block border border-stone-800 px-8 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition cursor-pointer bg-transparent">
+                    nicolas.grignon.graphicdesigner@gmail.com
+                </button>
 
                 <!--
                     FORMSPREE FORM
@@ -853,6 +956,104 @@
     function resetBtn() {
         submitBtn.textContent = 'Send message';
         submitBtn.disabled = false;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       EMAIL POPUP MODAL
+    ══════════════════════════════════════════════════════ */
+    var emailModal      = document.getElementById('email-modal');
+    var emailModalClose = document.getElementById('email-modal-close');
+    var openEmailModal  = document.getElementById('open-email-modal');
+    var modalForm       = document.getElementById('modal-contact-form');
+    var modalStatus     = document.getElementById('modal-form-status');
+    var modalSubmitBtn  = document.getElementById('modal-submit-btn');
+    var modalEmailField = document.getElementById('modal-field-email');
+    var modalReplyTo    = document.getElementById('modal-replyto-hidden');
+
+    function openModal() {
+        emailModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('modal-field-name').focus();
+    }
+
+    function closeModal() {
+        emailModal.classList.remove('active');
+        document.body.style.overflow = '';
+        modalForm.reset();
+        modalStatus.style.display = 'none';
+        modalSubmitBtn.textContent = 'Send message';
+        modalSubmitBtn.disabled = false;
+    }
+
+    openEmailModal.addEventListener('click', openModal);
+    emailModalClose.addEventListener('click', closeModal);
+
+    /* Close on backdrop click */
+    emailModal.addEventListener('click', function(e) {
+        if (e.target === emailModal) closeModal();
+    });
+
+    /* Close on Escape key */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && emailModal.classList.contains('active')) closeModal();
+    });
+
+    /* Keep _replyto in sync */
+    modalEmailField.addEventListener('input', function() {
+        modalReplyTo.value = modalEmailField.value;
+    });
+
+    /* Modal form submission via Formspree AJAX */
+    modalForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        var name    = document.getElementById('modal-field-name').value.trim();
+        var email   = modalEmailField.value.trim();
+        var message = document.getElementById('modal-field-message').value.trim();
+
+        if (!name || !email || !message) {
+            showModalStatus('Please fill in your name, email, and message.', 'error');
+            return;
+        }
+
+        modalSubmitBtn.textContent = 'Sending…';
+        modalSubmitBtn.disabled = true;
+        modalStatus.style.display = 'none';
+
+        fetch(modalForm.action, {
+            method: 'POST',
+            body: new FormData(modalForm),
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(function(response) {
+            if (response.ok) {
+                showModalStatus('Thank you — your message has been sent!', 'success');
+                modalForm.reset();
+                modalSubmitBtn.textContent = 'Sent!';
+                /* Auto-close after 2.5 s */
+                setTimeout(closeModal, 2500);
+            } else {
+                return response.json().then(function(data) {
+                    var msg = (data.errors && data.errors.length)
+                        ? data.errors.map(function(err) { return err.message; }).join(', ')
+                        : 'Submission failed. Please try again.';
+                    showModalStatus(msg, 'error');
+                    modalSubmitBtn.textContent = 'Send message';
+                    modalSubmitBtn.disabled = false;
+                });
+            }
+        })
+        .catch(function() {
+            showModalStatus('Something went wrong. Please try again.', 'error');
+            modalSubmitBtn.textContent = 'Send message';
+            modalSubmitBtn.disabled = false;
+        });
+    });
+
+    function showModalStatus(msg, type) {
+        modalStatus.textContent = msg;
+        modalStatus.className = type;
+        modalStatus.style.display = 'block';
     }
     </script>
 
