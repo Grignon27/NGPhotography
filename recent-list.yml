@@ -1,0 +1,30 @@
+name: Update recent photo list
+
+# Runs whenever a photo is added, changed or removed in the recent/ folder
+on:
+  push:
+    paths:
+      - 'recent/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build-list:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build recent/list.json
+        run: |
+          mkdir -p recent
+          cd recent
+          (ls -1 | grep -iE '\.jpe?g$' || true) | jq -R . | jq -s . > list.json
+          cat list.json
+
+      - name: Commit the new list
+        run: |
+          git config user.name  "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add recent/list.json
+          git diff --cached --quiet || (git commit -m "Update recent photo list" && git push)

@@ -170,14 +170,40 @@
         #lightbox.active {
             display: -webkit-flex;
             display:         flex;
+            -webkit-flex-direction: column;
+                    flex-direction: column;
         }
         #lightbox-img {
-            width: 80vw;
-            height: 80vh;
+            width: 90vw;
+            height: 66vh;
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+        }
+        @media (min-width: 768px) {
+            #lightbox-img {
+                width: 80vw;
+                height: 74vh;
+            }
+        }
+        /* EXIF caption under the enlarged photo */
+        #lightbox-exif {
+            display: -webkit-flex;
+            display:         flex;
+            -webkit-flex-wrap: wrap;
+                    flex-wrap: wrap;
+            -webkit-justify-content: center;
+                    justify-content: center;
+            gap: 0.5rem 1.75rem;
+            min-height: 1.5rem;
+            margin-top: 1rem;
+            padding: 0 1rem;
+            color: #d6d3d1;
+            font-size: 0.7rem;
+            font-weight: 300;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
         }
         #lightbox-close {
             position: absolute;
@@ -200,31 +226,40 @@
         ══════════════════════════════════════ */
 
         /* Grid layout — uniform patchwork */
-        #gallery-grid {
+        #gallery-grid, #recent-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1rem;
+            gap: 0.75rem;
+        }
+        @media (min-width: 480px) {
+            #gallery-grid, #recent-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         @media (min-width: 768px) {
-            #gallery-grid {
+            #gallery-grid, #recent-grid {
                 grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
             }
         }
 
         /* Photo wrapper — fixed 3:2 aspect ratio on every cell for a
            perfectly uniform patchwork: same width, same height, same gap
            in both directions, tops and bottoms always aligned.             */
-        #gallery-grid .photo-wrapper {
+        #gallery-grid .photo-wrapper,
+        #recent-grid .photo-wrapper {
             position: relative;
             overflow: hidden;
             aspect-ratio: 3 / 2;
         }
-        #gallery-grid .photo-wrapper:hover img {
+        #gallery-grid .photo-wrapper:hover img,
+        #recent-grid .photo-wrapper:hover img {
             -webkit-transform: scale(1.05);
                     transform: scale(1.05);
         }
 
-        #gallery-grid img {
+        #gallery-grid img,
+        #recent-grid img {
             display: block;
             width: 100%;
             height: 100%;
@@ -273,7 +308,7 @@
 
         /* ── Respect reduced-motion preference ── */
         @media (prefers-reduced-motion: reduce) {
-            .fade-slide, #gallery-grid img, * {
+            .fade-slide, #gallery-grid img, #recent-grid img, * {
                 -webkit-transition: none !important;
                         transition: none !important;
                 -webkit-animation: none !important;
@@ -337,8 +372,71 @@
             letter-spacing: 0.05em;
             text-align: center;
         }
-        #modal-form-status.success { background: #dcfce7; color: #166534; }
-        #modal-form-status.error   { background: #fee2e2; color: #991b1b; }
+        /* ══════════════════════════════════════
+           MOBILE MENU
+        ══════════════════════════════════════ */
+        #mobile-menu {
+            display: none;
+            position: fixed;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            background: rgba(231, 229, 228, 0.98);
+            -webkit-backdrop-filter: blur(4px);
+                    backdrop-filter: blur(4px);
+            border-bottom: 1px solid #d6d3d1;
+            z-index: 40;
+            -webkit-flex-direction: column;
+                    flex-direction: column;
+            padding: 1rem 0;
+        }
+        #mobile-menu.open {
+            display: -webkit-flex;
+            display:         flex;
+        }
+        #mobile-menu a {
+            padding: 0.75rem 2rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 300;
+            color: #1c1917;
+            -webkit-transition: color 0.2s;
+                    transition: color 0.2s;
+            border-bottom: 1px solid rgba(214,211,209,0.5);
+        }
+        #mobile-menu a:last-child { border-bottom: none; }
+        #mobile-menu a:hover { color: #a8a29e; }
+
+        /* Hamburger bar animation */
+        #mobile-menu-btn.open .bar-1 {
+            -webkit-transform: translateY(6px) rotate(45deg);
+                    transform: translateY(6px) rotate(45deg);
+        }
+        #mobile-menu-btn.open .bar-2 { opacity: 0; }
+        #mobile-menu-btn.open .bar-3 {
+            -webkit-transform: translateY(-6px) rotate(-45deg);
+                    transform: translateY(-6px) rotate(-45deg);
+        }
+        #mobile-menu-btn .bar-1,
+        #mobile-menu-btn .bar-2,
+        #mobile-menu-btn .bar-3 {
+            -webkit-transition: -webkit-transform 0.25s ease, opacity 0.25s ease;
+                    transition:         transform 0.25s ease, opacity 0.25s ease;
+        }
+
+        /* ══════════════════════════════════════
+           RESPONSIVE — About image mobile fix
+        ══════════════════════════════════════ */
+        @media (max-width: 767px) {
+            #about-img-wrapper {
+                height: 55vw;
+                min-height: 220px;
+                max-height: 360px;
+                width: 100%;
+                flex: none !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-white text-stone-800 antialiased overflow-x-hidden">
@@ -349,6 +447,7 @@
     <div id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged photo preview">
         <button id="lightbox-close" aria-label="Close preview">&#10005;</button>
         <div id="lightbox-img" role="img" aria-label="Gallery photo enlarged"></div>
+        <div id="lightbox-exif" aria-live="polite"></div>
     </div>
 
     <!-- ══════════════════════════════════════
@@ -409,19 +508,41 @@
     ══════════════════════════════════════ -->
     <nav role="navigation" aria-label="Main navigation"
          class="fixed top-0 left-0 w-full z-50 flex justify-between items-center text-stone-800 bg-stone-200/95 backdrop-blur-sm border-b border-stone-300"
-         style="height:50px; padding-left:2rem; padding-right:2rem;">
+         style="height:50px; padding-left:1.25rem; padding-right:1.25rem;">
         <a href="#home" class="flex items-center gap-2 leading-none" aria-label="Nicolas Grignon Photo Studio — back to top">
             <span class="text-xl font-bold text-stone-900 tracking-tight">NG</span>
             <span class="text-xs tracking-[0.2em] uppercase font-light text-stone-800">Photography</span>
         </a>
-        <div class="space-x-8 text-xs uppercase tracking-widest font-light">
+        <!-- Desktop nav links (hidden on mobile) -->
+        <div class="hidden md:flex space-x-8 text-xs uppercase tracking-widest font-light">
             <a href="#home"    class="hover:text-stone-400 transition">Home</a>
             <a href="#about"   class="hover:text-stone-400 transition">About</a>
             <a href="#gallery" class="hover:text-stone-400 transition">Gallery</a>
+            <a href="#recent"  class="hover:text-stone-400 transition">Last work</a>
             <a href="#prices"  class="hover:text-stone-400 transition">Prices</a>
             <a href="#contact" class="hover:text-stone-400 transition">Contact</a>
         </div>
+        <!-- Hamburger button (visible on mobile only) -->
+        <button id="mobile-menu-btn"
+                class="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-[5px]"
+                aria-label="Toggle navigation menu"
+                aria-expanded="false"
+                aria-controls="mobile-menu">
+            <span class="bar-1 block w-5 h-px bg-stone-800"></span>
+            <span class="bar-2 block w-5 h-px bg-stone-800"></span>
+            <span class="bar-3 block w-5 h-px bg-stone-800"></span>
+        </button>
     </nav>
+
+    <!-- Mobile slide-down menu -->
+    <div id="mobile-menu" role="navigation" aria-label="Mobile navigation">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#recent">Last work</a>
+        <a href="#prices">Prices</a>
+        <a href="#contact">Contact</a>
+    </div>
 
     <!-- ══════════════════════════════════════
          MAIN SCROLL CONTAINER
@@ -438,9 +559,13 @@
             </div>
 
             <!-- Title + dots — shrinks to natural height -->
-            <div class="py-10 text-center text-stone-800" style="flex-shrink:0;">
-                <h1 class="text-4xl font-extralight mb-2">Nicolas Grignon Photo Studio</h1>
-                <p class="text-xs tracking-[0.3em] uppercase text-stone-500">Photography in light, silence, and emotion</p>
+            <div class="py-8 md:py-10 px-4 text-center text-stone-800" style="flex-shrink:0;">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-extralight mb-2">Nicolas Grignon Photo Studio</h1>
+                <p class="text-xs tracking-[0.2em] md:tracking-[0.3em] uppercase text-stone-500">Photography in light, silence, and emotion</p>
+                <a href="#recent"
+                   class="mt-6 border border-stone-800 px-8 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition inline-block">
+                    Recent photographs
+                </a>
                 <div id="slider-dots" class="mt-6 flex justify-center gap-2"
                      role="tablist" aria-label="Slide navigation">
                 </div>
@@ -449,9 +574,9 @@
 
         <!-- ② ABOUT -->
         <section id="about"
-                 class="section-snap flex flex-col md:flex-row items-center justify-center p-12 md:p-24 gap-12 max-w-7xl mx-auto"
+                 class="section-snap flex flex-col md:flex-row items-center justify-center p-6 md:p-12 lg:p-24 gap-8 md:gap-12 max-w-7xl mx-auto"
                  aria-label="About Nicolas Grignon">
-            <div class="flex-1 w-full overflow-hidden shadow-inner" style="height:80vh;">
+            <div id="about-img-wrapper" class="flex-1 w-full overflow-hidden shadow-inner" style="height:80vh;">
                 <img src="images/Nicolas.jpg"
                      alt="Portrait of Nicolas Grignon, wildlife and portrait photographer"
                      class="w-full h-full object-cover"
@@ -459,9 +584,9 @@
                      draggable="false"
                      oncontextmenu="return false">
             </div>
-            <div class="flex-1">
+            <div class="flex-1 w-full">
                 <h2 class="text-xs uppercase tracking-widest mb-6 border-b border-stone-300 pb-2 inline-block">About the artist</h2>
-                <p class="text-lg font-light leading-relaxed mb-8 text-stone-600">
+                <p class="text-base md:text-lg font-light leading-relaxed mb-8 text-stone-600">
                     Capturing the ephemeral beauty of existence through my lens, I show you the true essence of life on Earth through Wildlife, Street, Landscape, Portrait, Activism, Technology and Black and White photography. If you want to use my services, please use my contact form. 
                 </p>
             </div>
@@ -469,7 +594,7 @@
 
         <!-- ③ GALLERY — no section-snap so it grows naturally and scrolls freely -->
         <section id="gallery"
-                 class="py-16 px-12 md:px-24 max-w-7xl mx-auto"
+                 class="py-12 px-4 md:px-12 lg:px-24 max-w-7xl mx-auto"
                  style="scroll-snap-align:start;"
                  aria-label="Selected works gallery">
             <h2 class="text-center text-xs uppercase tracking-widest mb-12">Selected Works</h2>
@@ -492,9 +617,27 @@
             <div class="h-16" aria-hidden="true"></div>
         </section>
 
+        <!-- ③b LAST WORK — auto-filled from the "recent" folder -->
+        <section id="recent"
+                 class="py-12 px-4 md:px-12 lg:px-24 max-w-7xl mx-auto"
+                 style="scroll-snap-align:start;"
+                 aria-label="Recent photographs">
+            <h2 class="text-center text-xs uppercase tracking-widest mb-12">Last Work</h2>
+            <p class="text-center text-base font-light text-stone-500 leading-relaxed mb-12 max-w-xl mx-auto">
+                My most recent photographs — click a thumbnail to see an enlarged size.
+            </p>
+            <div id="recent-grid">
+                <!-- Thumbnails injected by JS from the "recent" folder -->
+            </div>
+            <p id="recent-empty" class="text-center text-sm font-light text-stone-400 tracking-wide" style="display:none;">
+                New photographs are coming soon.
+            </p>
+            <div class="h-16" aria-hidden="true"></div>
+        </section>
+
         <!-- ④ PRICES -->
         <section id="prices"
-                 class="section-snap flex flex-col items-center justify-center p-12 md:p-24 bg-stone-50"
+                 class="section-snap flex flex-col items-center justify-center p-6 md:p-12 lg:p-24 bg-stone-50"
                  aria-label="Pricing">
 
             <h2 class="text-xs uppercase tracking-widest mb-16">Pricing</h2>
@@ -604,16 +747,16 @@
 
         <!-- ⑤ CONTACT -->
         <section id="contact"
-                 class="section-snap flex flex-col items-center justify-center p-12 text-center"
+                 class="section-snap flex flex-col items-center justify-center p-6 md:p-12 text-center"
                  aria-label="Contact Nicolas Grignon">
             <h2 class="text-xs uppercase tracking-widest mb-12">Get in touch</h2>
             <div class="w-full max-w-md space-y-6">
 
-                <p class="text-2xl font-light italic text-stone-500">+1 (647) 612-0175</p>
+                <p class="text-xl md:text-2xl font-light italic text-stone-500">+1 (647) 612-0175</p>
 
                 <!-- Email link — opens popup form -->
                 <button id="open-email-modal"
-                        class="inline-block border border-stone-800 px-8 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition cursor-pointer bg-transparent">
+                        class="inline-block w-full border border-stone-800 px-4 py-3 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition cursor-pointer bg-transparent break-all leading-relaxed">
                     nicolas.grignon.graphicdesigner@gmail.com
                 </button>
 
@@ -839,18 +982,111 @@
         grid.appendChild(wrapper);
     });
 
-    function openLightbox(src, alt) {
+    var lightboxExif = document.getElementById('lightbox-exif');
+    var exifToken    = 0;   /* ignores late EXIF answers from a photo that is no longer open */
+
+    function openLightbox(src, alt, showExif) {
         lightboxImg.style.backgroundImage = "url('" + src + "')";
         lightboxImg.setAttribute('aria-label', alt || 'Gallery photo');
+        lightboxExif.textContent = '';
         lightbox.classList.add('active');
         document.body.style.overflow = 'hidden';
         closeBtn.focus();
+        if (showExif) showExifFor(src);
     }
 
     function closeLightbox() {
         lightbox.classList.remove('active');
         lightboxImg.style.backgroundImage = 'none';
+        lightboxExif.textContent = '';
+        exifToken++;
         document.body.style.overflow = '';
+    }
+
+    /* ══════════════════════════════════════════════════════
+       EXIF READER — aperture, shutter speed, ISO, focal length
+       Reads the JPEG header directly (no library needed).
+       If a photo has no EXIF data, nothing is displayed.
+    ══════════════════════════════════════════════════════ */
+    function parseExif(buf) {
+        try {
+            var v = new DataView(buf);
+            if (v.getUint16(0) !== 0xFFD8) return null;
+            var off = 2;
+            while (off + 4 < v.byteLength) {
+                var marker = v.getUint16(off);
+                if (marker === 0xFFDA || (marker & 0xFF00) !== 0xFF00) break;
+                if (marker === 0xFFE1 && v.getUint32(off + 4) === 0x45786966) {   /* "Exif" */
+                    return parseTiff(v, off + 10);
+                }
+                off += 2 + v.getUint16(off + 2);
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    function parseTiff(v, tiff) {
+        var little = v.getUint16(tiff) === 0x4949;
+        function u16(o) { return v.getUint16(o, little); }
+        function u32(o) { return v.getUint32(o, little); }
+
+        function readIfd(ptr) {
+            var out = {}, n = u16(ptr);
+            for (var i = 0; i < n; i++) {
+                var e = ptr + 2 + i * 12;
+                var tag = u16(e), type = u16(e + 2), count = u32(e + 4);
+                var unit = (type === 3) ? 2 : (type === 4) ? 4 : (type === 5) ? 8 : 1;
+                var vo = (unit * count > 4) ? tiff + u32(e + 8) : e + 8;
+                if (type === 3)      out[tag] = u16(vo);
+                else if (type === 4) out[tag] = u32(vo);
+                else if (type === 5) out[tag] = [u32(vo), u32(vo + 4)];
+            }
+            return out;
+        }
+
+        var ifd0 = readIfd(tiff + u32(tiff + 4));
+        if (!ifd0[0x8769]) return null;
+        var ex = readIfd(tiff + ifd0[0x8769]);
+        return {
+            aperture: ex[0x829D],                       /* FNumber */
+            shutter:  ex[0x829A],                       /* ExposureTime */
+            iso:      ex[0x8827] || ex[0x8833],         /* ISO */
+            focal:    ex[0x920A]                        /* FocalLength */
+        };
+    }
+
+    function formatExif(d) {
+        var items = [];
+        if (d.aperture && d.aperture[1]) {
+            items.push('\u0192/' + parseFloat((d.aperture[0] / d.aperture[1]).toFixed(1)));
+        }
+        if (d.shutter && d.shutter[0] && d.shutter[1]) {
+            var t = d.shutter[0] / d.shutter[1];
+            items.push((t < 1 ? '1/' + Math.round(1 / t) : parseFloat(t.toFixed(1))) + ' s');
+        }
+        if (d.iso) items.push('ISO ' + d.iso);
+        if (d.focal && d.focal[1]) {
+            items.push(parseFloat((d.focal[0] / d.focal[1]).toFixed(1)) + ' mm');
+        }
+        return items;
+    }
+
+    function showExifFor(src) {
+        var token = ++exifToken;
+        /* first 256 KB is plenty — EXIF lives at the start of the file */
+        fetch(src, { headers: { 'Range': 'bytes=0-262143' } })
+            .then(function(r) { if (!r.ok) throw new Error('fetch'); return r.arrayBuffer(); })
+            .then(function(buf) {
+                if (token !== exifToken) return;
+                var data = parseExif(buf);
+                if (!data) return;
+                formatExif(data).forEach(function(text) {
+                    var span = document.createElement('span');
+                    span.textContent = text;
+                    lightboxExif.appendChild(span);
+                });
+            })
+            .catch(function() { /* no EXIF shown — never breaks the popup */ });
     }
 
     closeBtn.addEventListener('click', closeLightbox);
@@ -860,6 +1096,157 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeLightbox();
     });
+
+
+    /* ══════════════════════════════════════════════════════
+       LAST WORK — loads every .jpg / .jpeg in the "recent" folder
+       ────────────────────────────────────────────────────
+       Automatic: the folder is scanned on every page load and
+       re-checked while the page stays open, so new photos appear
+       (and deleted ones disappear) with no code change.
+
+       A browser cannot list a folder by itself, so file names are
+       discovered in this order (first that works):
+         1. Folder listing of recent/   (local dev servers, Apache/nginx autoindex)
+         2. GitHub API                  (GitHub Pages — see RECENT_GITHUB below)
+         3. recent/list.json            (rebuilt automatically by the GitHub Action)
+    ══════════════════════════════════════════════════════ */
+    var RECENT_FOLDER           = 'recent';
+    var RECENT_NEWEST_FIRST     = true;   /* true: Z→A by filename (date-prefixed names, e.g. 2026-09-30_Heron.jpg) */
+    var RECENT_RECHECK_MINUTES  = 5;      /* re-scan while the page is open; 0 = only on load */
+
+    /* GitHub Pages settings — auto-detected for *.github.io.
+       With a custom domain, fill in your repo here (or use the GitHub Action, step 3): */
+    var RECENT_GITHUB = {
+        repo:   '',          /* e.g. 'yourusername/yourrepo' */
+        branch: '',          /* leave '' to use the repo's default branch */
+        path:   RECENT_FOLDER
+    };
+
+    var recentGrid  = document.getElementById('recent-grid');
+    var recentEmpty = document.getElementById('recent-empty');
+    var recentShown = null;               /* signature of what is currently displayed */
+
+    function isJpg(name) { return /\.jpe?g$/i.test(name); }
+
+    function fileToAlt(file) {
+        var base = file.replace(/\.[^.]+$/, '').replace(/^\d{4}[-_]\d{2}[-_]\d{2}[-_ ]*/, '');
+        base = base.replace(/[_\-]+/g, ' ').trim();
+        return base || 'Recent photograph';
+    }
+
+    /* 1 — directory listing */
+    function listFromDirectory() {
+        return fetch(RECENT_FOLDER + '/', { cache: 'no-store' })
+            .then(function(r) { if (!r.ok) throw new Error('no listing'); return r.text(); })
+            .then(function(html) {
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var out = [];
+                doc.querySelectorAll('a[href]').forEach(function(a) {
+                    var href = decodeURIComponent((a.getAttribute('href') || '').split('?')[0]);
+                    var name = href.split('/').pop();
+                    if (isJpg(name) && out.indexOf(name) === -1) out.push(name);
+                });
+                if (!out.length) throw new Error('empty listing');
+                return out;
+            });
+    }
+
+    /* 2 — GitHub API */
+    function githubRepo() {
+        var repo = RECENT_GITHUB.repo;
+        if (!repo && /\.github\.io$/i.test(location.hostname)) {
+            var user  = location.hostname.split('.')[0];
+            var first = location.pathname.split('/')[1];
+            repo = user + '/' + (first ? first : location.hostname);
+        }
+        return repo;
+    }
+    function listFromGitHub() {
+        var repo = githubRepo();
+        if (!repo) return Promise.reject(new Error('no repo'));
+        var url = 'https://api.github.com/repos/' + repo + '/contents/' + RECENT_GITHUB.path +
+                  (RECENT_GITHUB.branch ? '?ref=' + encodeURIComponent(RECENT_GITHUB.branch) : '');
+        return fetch(url, { headers: { 'Accept': 'application/vnd.github+json' } })
+            .then(function(r) { if (!r.ok) throw new Error('github ' + r.status); return r.json(); })
+            .then(function(items) {
+                var out = items.filter(function(i) { return i.type === 'file' && isJpg(i.name); })
+                               .map(function(i) { return i.name; });
+                if (!out.length) throw new Error('empty github');
+                return out;
+            });
+    }
+
+    /* 3 — list.json (written by the GitHub Action, or by hand) */
+    function listFromManifest() {
+        return fetch(RECENT_FOLDER + '/list.json', { cache: 'no-store' })
+            .then(function(r) { if (!r.ok) throw new Error('no manifest'); return r.json(); })
+            .then(function(arr) {
+                var out = (arr || []).filter(function(n) { return typeof n === 'string' && isJpg(n); });
+                if (!out.length) throw new Error('empty manifest');
+                return out;
+            });
+    }
+
+    function buildRecentGrid(files) {
+        files.forEach(function(file) {
+            var src = RECENT_FOLDER + '/' + encodeURIComponent(file);
+            var alt = fileToAlt(file);
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'photo-wrapper';
+
+            var img = document.createElement('img');
+            img.src     = src;
+            img.alt     = alt + ' — Nicolas Grignon Photo Studio';
+            img.loading = 'lazy';
+            img.setAttribute('draggable', 'false');
+            img.setAttribute('oncontextmenu', 'return false');
+            /* file removed since the list was read → drop the empty tile */
+            img.addEventListener('error', function() { wrapper.remove(); });
+
+            var overlay = document.createElement('div');
+            overlay.className = 'photo-overlay';
+            overlay.setAttribute('oncontextmenu', 'return false');
+            overlay.setAttribute('ondragstart', 'return false');
+            overlay.addEventListener('click', function() { openLightbox(src, alt, true); });
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(overlay);
+            recentGrid.appendChild(wrapper);
+        });
+    }
+
+    function renderRecent(files) {
+        files = files.slice().sort(function(a, b) {
+            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+        });
+        if (RECENT_NEWEST_FIRST) files.reverse();
+
+        var signature = files.join('|');
+        if (signature === recentShown) return;          /* nothing new — leave the grid alone */
+        recentShown = signature;
+
+        recentGrid.textContent = '';
+        buildRecentGrid(files);
+        recentEmpty.style.display = files.length ? 'none' : 'block';
+    }
+
+    function refreshRecent() {
+        listFromDirectory()
+            .catch(listFromGitHub)
+            .catch(listFromManifest)
+            .then(renderRecent)
+            .catch(function() {
+                /* every method found no photo */
+                renderRecent([]);
+            });
+    }
+
+    refreshRecent();
+    if (RECENT_RECHECK_MINUTES > 0) {
+        setInterval(refreshRecent, RECENT_RECHECK_MINUTES * 60 * 1000);
+    }
 
     /* Prevent right-click "Save Image As" and drag-to-desktop on all images */
     document.addEventListener('contextmenu', function(e) {
@@ -874,17 +1261,23 @@
     ══════════════════════════════════════════════════════ */
     var mainScroll     = document.getElementById('main-scroll');
     var gallerySection = document.getElementById('gallery');
+    var recentSection  = document.getElementById('recent');
+    var visibleGalleries = {};
 
     if ('IntersectionObserver' in window) {
-        new IntersectionObserver(function(entries) {
+        var galleryObserver = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    mainScroll.classList.remove('hide-scrollbar');
-                } else {
-                    mainScroll.classList.add('hide-scrollbar');
-                }
+                visibleGalleries[entry.target.id] = entry.isIntersecting;
             });
-        }, { threshold: 0.05 }).observe(gallerySection);
+            var anyVisible = visibleGalleries.gallery || visibleGalleries.recent;
+            if (anyVisible) {
+                mainScroll.classList.remove('hide-scrollbar');
+            } else {
+                mainScroll.classList.add('hide-scrollbar');
+            }
+        }, { threshold: 0.05 });
+        galleryObserver.observe(gallerySection);
+        galleryObserver.observe(recentSection);
     }
 
     /* ══════════════════════════════════════════════════════
@@ -1055,7 +1448,52 @@
         modalStatus.className = type;
         modalStatus.style.display = 'block';
     }
-    </script>
+    /* ══════════════════════════════════════════════════════
+       MOBILE NAVIGATION MENU
+    ══════════════════════════════════════════════════════ */
+    var mobileMenuBtn  = document.getElementById('mobile-menu-btn');
+    var mobileMenuEl   = document.getElementById('mobile-menu');
 
+    function toggleMobileMenu() {
+        var isOpen = mobileMenuEl.classList.contains('open');
+        if (isOpen) {
+            mobileMenuEl.classList.remove('open');
+            mobileMenuBtn.classList.remove('open');
+            mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        } else {
+            mobileMenuEl.classList.add('open');
+            mobileMenuBtn.classList.add('open');
+            mobileMenuBtn.setAttribute('aria-expanded', 'true');
+        }
+    }
+
+    function closeMobileMenu() {
+        mobileMenuEl.classList.remove('open');
+        mobileMenuBtn.classList.remove('open');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    mobileMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleMobileMenu();
+    });
+
+    /* Close menu when a nav link is tapped */
+    mobileMenuEl.querySelectorAll('a').forEach(function(link) {
+        link.addEventListener('click', closeMobileMenu);
+    });
+
+    /* Close menu when tapping outside */
+    document.addEventListener('click', function(e) {
+        if (!mobileMenuEl.contains(e.target) && e.target !== mobileMenuBtn) {
+            closeMobileMenu();
+        }
+    });
+
+    /* Close on Escape */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeMobileMenu();
+    });
+    </script>
 </body>
 </html>
