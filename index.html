@@ -195,28 +195,39 @@
                     flex-wrap: wrap;
             -webkit-justify-content: center;
                     justify-content: center;
-            gap: 0.6rem 2rem;
+            gap: 0.6rem 2.25rem;
             min-height: 1.75rem;
             margin-top: 1rem;
             padding: 0 1rem;
-            color: #e7e5e4;
-            font-size: 0.9rem;
-            font-weight: 400;
-            letter-spacing: 0.03em;
+            position: relative;
+            z-index: 2;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
             font-variant-numeric: tabular-nums;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
         }
         #lightbox-exif .exif-item {
             display: -webkit-inline-flex;
             display:         inline-flex;
             -webkit-align-items: center;
                     align-items: center;
-            gap: 0.5rem;
+            gap: 0.55rem;
             white-space: nowrap;
+            color: #ffffff;
+            font-weight: 700;
         }
         #lightbox-exif .exif-item svg {
-            color: #a8a29e;
+            color: #ffffff;
+            stroke-width: 2;
             -webkit-flex-shrink: 0;
                     flex-shrink: 0;
+        }
+        #lightbox-exif .exif-debug {
+            color: #fecaca;
+            font-weight: 400;
+            font-size: 0.8rem;
         }
         #lightbox-close {
             position: absolute;
@@ -997,6 +1008,8 @@
 
     var lightboxExif = document.getElementById('lightbox-exif');
     var exifToken    = 0;   /* ignores late EXIF answers from a photo that is no longer open */
+    var exifWhy      = '';  /* reason when no camera data could be read */
+    var EXIF_DEBUG   = /[?&]debug\b/.test(location.search);   /* open the site with ?debug to see why a legend is missing */
 
     function openLightbox(src, alt, showExif) {
         lightboxImg.style.backgroundImage = "url('" + src + "')";
@@ -1024,7 +1037,7 @@
     function parseExif(buf) {
         try {
             var v = new DataView(buf);
-            if (v.getUint16(0) !== 0xFFD8) return null;
+            if (v.getUint16(0) !== 0xFFD8) { exifWhy = 'the file is not a normal JPEG'; return null; }
             var off = 2;
             while (off + 4 < v.byteLength) {
                 var marker = v.getUint16(off);
@@ -1034,7 +1047,8 @@
                 }
                 off += 2 + v.getUint16(off + 2);
             }
-        } catch (e) {}
+            exifWhy = 'no EXIF block in the file (camera data was removed when the photo was exported)';
+        } catch (e) { exifWhy = 'could not read the file header'; }
         return null;
     }
 
@@ -1059,7 +1073,7 @@
         }
 
         var ifd0 = readIfd(tiff + u32(tiff + 4));
-        if (!ifd0[0x8769]) return null;
+        if (!ifd0[0x8769]) { exifWhy = 'EXIF found, but it has no camera-settings section'; return null; }
         var ex = readIfd(tiff + ifd0[0x8769]);
 
         var iso = ex[0x8827];
@@ -1113,15 +1127,32 @@
 
     function showExifFor(src) {
         var token = ++exifToken;
-        /* first 512 KB is plenty — EXIF lives at the start of the file */
-        fetch(src, { headers: { 'Range': 'bytes=0-524287' } })
-            .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); })
+        exifWhy = '';
+
+        function say(reason) {
+            console.info('[EXIF] ' + src + ' — ' + reason);
+            if (token !== exifToken) return;
+            var none = document.createElement('span');
+            none.className = 'exif-none';
+            none.textContent = 'No EXIF data for this picture';
+            lightboxExif.appendChild(none);
+            if (EXIF_DEBUG) {
+                var d = document.createElement('span');
+                d.className = 'exif-debug';
+                d.textContent = 'DEBUG: ' + reason;
+                lightboxExif.appendChild(d);
+            }
+        }
+
+        /* the photo is already loaded by the browser, so this normally comes from its cache */
+        fetch(src)
+            .then(function(r) { if (!r.ok) throw new Error('file not found (HTTP ' + r.status + ')'); return r.arrayBuffer(); })
             .then(function(buf) {
                 if (token !== exifToken) return;
-                var items = formatExif(parseExif(buf) || {});
+                var data  = parseExif(buf);
+                var items = formatExif(data || {});
                 if (!items.length) {
-                    console.info('[EXIF] no camera data found in ' + src +
-                                 ' (the metadata was probably removed when the photo was exported)');
+                    say(exifWhy || 'EXIF found, but aperture, shutter speed, ISO and focal length are all missing');
                     return;
                 }
                 items.forEach(function(it) {
@@ -1136,7 +1167,7 @@
                     lightboxExif.appendChild(span);
                 });
             })
-            .catch(function(e) { console.info('[EXIF] could not read ' + src + ' — ' + e.message); });
+            .catch(function(e) { say('could not read the photo — ' + e.message); });
     }
 
     closeBtn.addEventListener('click', closeLightbox);
