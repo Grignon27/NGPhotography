@@ -1099,154 +1099,85 @@
 
 
     /* ══════════════════════════════════════════════════════
-       LAST WORK — loads every .jpg / .jpeg in the "recent" folder
+       LAST WORK — simple version
        ────────────────────────────────────────────────────
-       Automatic: the folder is scanned on every page load and
-       re-checked while the page stays open, so new photos appear
-       (and deleted ones disappear) with no code change.
+       HOW TO ADD A PHOTO:
+         1. Upload the .jpg into the folder "recent" (next to index.html)
+         2. Type its exact file name in the list below, between quotes,
+            followed by a comma. Keep the capital letters and the .jpg
+         3. Save / commit the file. Done.
 
-       A browser cannot list a folder by itself, so file names are
-       discovered in this order (first that works):
-         1. Folder listing of recent/   (local dev servers, Apache/nginx autoindex)
-         2. GitHub API                  (GitHub Pages — see RECENT_GITHUB below)
-         3. recent/list.json            (rebuilt automatically by the GitHub Action)
+       The first name in the list is shown first.
+       A name with no matching file is simply skipped, so you can
+       leave the placeholders below until you replace them.
     ══════════════════════════════════════════════════════ */
-    var RECENT_FOLDER           = 'recent';
-    var RECENT_NEWEST_FIRST     = true;   /* true: Z→A by filename (date-prefixed names, e.g. 2026-09-30_Heron.jpg) */
-    var RECENT_RECHECK_MINUTES  = 5;      /* re-scan while the page is open; 0 = only on load */
+    var RECENT_FOLDER = 'recent';
 
-    /* GitHub Pages settings — auto-detected for *.github.io.
-       With a custom domain, fill in your repo here (or use the GitHub Action, step 3): */
-    var RECENT_GITHUB = {
-        repo:   '',          /* e.g. 'yourusername/yourrepo' */
-        branch: '',          /* leave '' to use the repo's default branch */
-        path:   RECENT_FOLDER
-    };
+    var RECENT_PHOTOS = [
+        'detail1.jpg',      /* ← replace with your file name */
+        'Robin1.jpg',      /* ← replace with your file name */
+        'Blackcormoran.jpg',      /* ← replace with your file name */
+        'detail2.jpg',      /* ← replace with your file name */
+        'Macro1.jpg',      /* ← replace with your file name */
+        'gull1.jpg'  
+        'rabbit.jpg'       /* ← replace with your file name */
+        'Squirrel1.jpg'       /* ← replace with your file name */
+        'Salmon1.jpg'       /* ← replace with your file name */
+        'Swiss1.jpg'       /* ← replace with your file name */
+        'coyote.jpg'       /* ← replace with your file name */
+        'cormoran1.jpg'       /* ← replace with your file name */
+        'cormoran2.jpg'       /* ← replace with your file name */
+        'detail3.jpg'       /* ← replace with your file name */
+        'Squirrel2.jpg'       /* ← replace with your file name */
+        'Cicada.jpg'       /* ← replace with your file name */
+
+        /* add more lines here — every line ends with a comma, except the last one */
+    ];
+
+    /* ── From here on, nothing needs to be changed ── */
 
     var recentGrid  = document.getElementById('recent-grid');
     var recentEmpty = document.getElementById('recent-empty');
-    var recentShown = null;               /* signature of what is currently displayed */
-
-    function isJpg(name) { return /\.jpe?g$/i.test(name); }
 
     function fileToAlt(file) {
-        var base = file.replace(/\.[^.]+$/, '').replace(/^\d{4}[-_]\d{2}[-_]\d{2}[-_ ]*/, '');
-        base = base.replace(/[_\-]+/g, ' ').trim();
+        var base = file.replace(/\.[^.]+$/, '').replace(/[_\-]+/g, ' ').trim();
         return base || 'Recent photograph';
     }
 
-    /* 1 — directory listing */
-    function listFromDirectory() {
-        return fetch(RECENT_FOLDER + '/', { cache: 'no-store' })
-            .then(function(r) { if (!r.ok) throw new Error('no listing'); return r.text(); })
-            .then(function(html) {
-                var doc = new DOMParser().parseFromString(html, 'text/html');
-                var out = [];
-                doc.querySelectorAll('a[href]').forEach(function(a) {
-                    var href = decodeURIComponent((a.getAttribute('href') || '').split('?')[0]);
-                    var name = href.split('/').pop();
-                    if (isJpg(name) && out.indexOf(name) === -1) out.push(name);
-                });
-                if (!out.length) throw new Error('empty listing');
-                return out;
-            });
+    function showEmptyMessageIfNeeded() {
+        recentEmpty.style.display = recentGrid.children.length ? 'none' : 'block';
     }
 
-    /* 2 — GitHub API */
-    function githubRepo() {
-        var repo = RECENT_GITHUB.repo;
-        if (!repo && /\.github\.io$/i.test(location.hostname)) {
-            var user  = location.hostname.split('.')[0];
-            var first = location.pathname.split('/')[1];
-            repo = user + '/' + (first ? first : location.hostname);
-        }
-        return repo;
-    }
-    function listFromGitHub() {
-        var repo = githubRepo();
-        if (!repo) return Promise.reject(new Error('no repo'));
-        var url = 'https://api.github.com/repos/' + repo + '/contents/' + RECENT_GITHUB.path +
-                  (RECENT_GITHUB.branch ? '?ref=' + encodeURIComponent(RECENT_GITHUB.branch) : '');
-        return fetch(url, { headers: { 'Accept': 'application/vnd.github+json' } })
-            .then(function(r) { if (!r.ok) throw new Error('github ' + r.status); return r.json(); })
-            .then(function(items) {
-                var out = items.filter(function(i) { return i.type === 'file' && isJpg(i.name); })
-                               .map(function(i) { return i.name; });
-                if (!out.length) throw new Error('empty github');
-                return out;
-            });
-    }
+    RECENT_PHOTOS.forEach(function(file) {
+        var src = RECENT_FOLDER + '/' + encodeURIComponent(file);
+        var alt = fileToAlt(file);
 
-    /* 3 — list.json (written by the GitHub Action, or by hand) */
-    function listFromManifest() {
-        return fetch(RECENT_FOLDER + '/list.json', { cache: 'no-store' })
-            .then(function(r) { if (!r.ok) throw new Error('no manifest'); return r.json(); })
-            .then(function(arr) {
-                var out = (arr || []).filter(function(n) { return typeof n === 'string' && isJpg(n); });
-                if (!out.length) throw new Error('empty manifest');
-                return out;
-            });
-    }
+        var wrapper = document.createElement('div');
+        wrapper.className = 'photo-wrapper';
 
-    function buildRecentGrid(files) {
-        files.forEach(function(file) {
-            var src = RECENT_FOLDER + '/' + encodeURIComponent(file);
-            var alt = fileToAlt(file);
-
-            var wrapper = document.createElement('div');
-            wrapper.className = 'photo-wrapper';
-
-            var img = document.createElement('img');
-            img.src     = src;
-            img.alt     = alt + ' — Nicolas Grignon Photo Studio';
-            img.loading = 'lazy';
-            img.setAttribute('draggable', 'false');
-            img.setAttribute('oncontextmenu', 'return false');
-            /* file removed since the list was read → drop the empty tile */
-            img.addEventListener('error', function() { wrapper.remove(); });
-
-            var overlay = document.createElement('div');
-            overlay.className = 'photo-overlay';
-            overlay.setAttribute('oncontextmenu', 'return false');
-            overlay.setAttribute('ondragstart', 'return false');
-            overlay.addEventListener('click', function() { openLightbox(src, alt, true); });
-
-            wrapper.appendChild(img);
-            wrapper.appendChild(overlay);
-            recentGrid.appendChild(wrapper);
+        var img = document.createElement('img');
+        img.src     = src;
+        img.alt     = alt + ' — Nicolas Grignon Photo Studio';
+        img.loading = 'lazy';
+        img.setAttribute('draggable', 'false');
+        img.setAttribute('oncontextmenu', 'return false');
+        /* file not found → skip this tile */
+        img.addEventListener('error', function() {
+            wrapper.remove();
+            showEmptyMessageIfNeeded();
         });
-    }
 
-    function renderRecent(files) {
-        files = files.slice().sort(function(a, b) {
-            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
-        });
-        if (RECENT_NEWEST_FIRST) files.reverse();
+        var overlay = document.createElement('div');
+        overlay.className = 'photo-overlay';
+        overlay.setAttribute('oncontextmenu', 'return false');
+        overlay.setAttribute('ondragstart', 'return false');
+        overlay.addEventListener('click', function() { openLightbox(src, alt, true); });
 
-        var signature = files.join('|');
-        if (signature === recentShown) return;          /* nothing new — leave the grid alone */
-        recentShown = signature;
-
-        recentGrid.textContent = '';
-        buildRecentGrid(files);
-        recentEmpty.style.display = files.length ? 'none' : 'block';
-    }
-
-    function refreshRecent() {
-        listFromDirectory()
-            .catch(listFromGitHub)
-            .catch(listFromManifest)
-            .then(renderRecent)
-            .catch(function() {
-                /* every method found no photo */
-                renderRecent([]);
-            });
-    }
-
-    refreshRecent();
-    if (RECENT_RECHECK_MINUTES > 0) {
-        setInterval(refreshRecent, RECENT_RECHECK_MINUTES * 60 * 1000);
-    }
+        wrapper.appendChild(img);
+        wrapper.appendChild(overlay);
+        recentGrid.appendChild(wrapper);
+    });
+    showEmptyMessageIfNeeded();
 
     /* Prevent right-click "Save Image As" and drag-to-desktop on all images */
     document.addEventListener('contextmenu', function(e) {
